@@ -409,3 +409,70 @@ body {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
+
+/* Signup Link */
+.signup-link {
+    text-align: center;
+}
+
+.signup-link p {
+    color: #9499b7;
+    font-size: 14px;
+}
+
+.signup-link a {
+    color: #6c7293;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.signup-link a:hover {
+    color: #ffffff;
+}
+
+/* Error States */
+.error-message {
+    color: #ff3b5c;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 8px;
+    margin-left: 20px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.error-message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.form-group.error .neu-input {
+    box-shadow: 
+        inset 8px 8px 16px #121415,
+        inset -8px -8px 16px #242627,
+        0 0 0 2px #ff3b5c;
+}
+
+/* Success Message */
+.success-message {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+}
+
+.success-message.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.success-message .neu-icon {
+    background: #1b1d1e;
+    color: #00c896;
+    margin-bottom: 20px;
+}
