@@ -91,3 +91,37 @@ body {
     font-size: 15px;
     font-weight: 400;
 }
+
+.form-group {
+    margin-bottom: 28px;
+    position: relative;
+}
+
+.neu-input {
+    position: relative;
+    background: #1b1d1e;
+    border-radius: 15px;
+    box-shadow: 
+        inset 8px 8px 16px #121415,
+        inset -8px -8px 16px #242627;
+    transition: all 0.3s ease;
+}
+
+.neu-input:focus-within {
+    box-shadow: 
+        inset 4px 4px 8px #121415,
+        inset -4px -4px 8px #242627;
+}
+
+.neu-input input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 20px 24px;
+    padding-left: 55px;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.3s ease;
+}
