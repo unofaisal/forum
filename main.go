@@ -200,6 +200,8 @@ func main() {
 	mux.HandleFunc("/log", handleLoginPage)
 	mux.HandleFunc("/getusers", getUsers)
 	mux.HandleFunc("/login", login)
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./ui/static/"))))
+
 
 	fmt.Println("server running on port 8080")
 	var err interface{}
