@@ -125,3 +125,38 @@ body {
     outline: none;
     transition: all 0.3s ease;
 }
+
+.neu-input input::placeholder {
+    color: transparent;
+}
+
+.neu-input label {
+    position: absolute;
+    left: 55px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9499b7;
+    font-size: 16px;
+    font-weight: 400;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.neu-input input:focus + label,
+.neu-input input:not(:placeholder-shown) + label {
+    top: 8px;
+    font-size: 12px;
+    color: #00c896;
+    transform: translateY(0);
+}
+
+.input-icon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    color: #9499b7;
+    transition: all 0.3s ease;
+}
