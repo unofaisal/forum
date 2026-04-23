@@ -3,8 +3,10 @@ package main
 import (
 	"bytes"
 	"database/sql"
+
 	// "encoding/json"
 
+	// "encoding/json"
 	"fmt"
 	// "io"
 	"log"
@@ -20,11 +22,14 @@ type UserData struct {
 	Name string
 }
 
-func root(w http.ResponseWriter, r *http.Request) {
+func root(w http.ResponseWriter, r *http.Request){
+	http.ServeFile(w, r, "ui/templates/home.html")
+
 	_, err := w.Write([]byte("this is the home page\n"))
 	if err != nil {
 		slog.Error("error writing the response")
 	}
+
 }
 
 func ping(w http.ResponseWriter, r *http.Request) {
@@ -49,6 +54,8 @@ func ping(w http.ResponseWriter, r *http.Request) {
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
+	// http.ServeFile(w, r, "ui/templates/register.html")
+
 	Firstname := r.FormValue("name")
 	username := r.FormValue("username")
 	email := r.FormValue("email")
@@ -61,6 +68,9 @@ func register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "all fields are required", http.StatusBadRequest)
 		return
 	}
+
+	schema := `
+	INSERT INTO users (username, password_hash) VALUES (?, ?)`
 
 	user := "user"
 	name := "unknown"
@@ -77,12 +87,19 @@ func register(w http.ResponseWriter, r *http.Request) {
 		name = Firstname
 	}
 
-	fmt.Fprintf(w, "welcome %s\nUsername: %s\nEmail: %s\nPassword: %s\n", name, user, mail, pass)
+	_, err := db.Exec(schema, username, password)
+
+	if err != nil {
+		fmt.Println("DB error: ", err)
+		http.Error(w, "failed to save data into databse username already exists", http.StatusInternalServerError)
+		return
+	} else {
+		fmt.Fprintln(w, "data saved successfully into database", http.StatusOK)
+	}
 
 	// _, err := w.Write(output.Bytes())
-	// if err != nil {
-	// 	http.Error(w, "something went wrong", http.StatusInternalServerError)
-	// }
+
+	fmt.Fprintf(w, "welcome %s\nUsername: %s\nEmail: %s\nPassword: %s\n", name, user, mail, pass)
 	// body, diode := io.ReadAll(r.Body)
 
 	var data UserData
@@ -96,7 +113,54 @@ func register(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	fmt.Println(name)
+	// fmt.Println(&db)
 	fmt.Println(data.Name)
+}
+
+func login(w http.ResponseWriter, r *http.Request) {
+	user := r.FormValue("username")
+	password := r.FormValue("password")
+
+	if user == "" || password == "" {
+		http.Error(w, "all fields must be filled", http.StatusBadRequest)
+		return
+	}
+
+	schema := `
+	SELECT username, password_hash FROM users WHERE username = ?
+	`
+
+	row := db.QueryRow(schema, user)
+
+	// if row == "" {
+	// 	http.Error(w, "user not found", http.StatusNotFound)
+	// 	return
+	// }
+
+	// if err != nil {
+	// 	http.Error(w, "user not found", http.StatusNotFound)
+	// 	return
+	// }
+
+	var dbusername, dbpassword string
+
+	row.Scan(&dbusername, &dbpassword)
+	if dbpassword != password {
+		http.Error(w, "user unknown try again", http.StatusForbidden)
+		return
+	}
+	fmt.Println(dbusername, user)
+
+	// for row.Next() {
+	// 	// var username, password string
+	// 	row.Scan(&username, &password)
+
+	fmt.Fprintf(w, "Welcome back %v", dbusername)
+	// }
+}
+
+func handleLoginPage(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "ui/templates/login.html")
 }
 
 func handleRegisterHtml(w http.ResponseWriter, r *http.Request) {
@@ -104,16 +168,41 @@ func handleRegisterHtml(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "ui/templates/register.html")
 }
 
+func handleHomePage(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "/ui/templates/home.html")
+}
+
+func getUsers(w http.ResponseWriter, r *http.Request) {
+	schema := `
+	SELECT username, password_hash FROM users`
+	row, err := db.Query(schema)
+	if err != nil {
+		http.Error(w, "failed to retrieve data from the database", http.StatusInternalServerError)
+		return
+	}
+	// defer db.Close()
+
+	for row.Next() {
+		var username, password string
+		row.Scan(&username, &password)
+
+		fmt.Fprintf(w, "username: %v, password: %v\n", username, password)
+	}
+}
+
 func main() {
 	mux := http.NewServeMux()
 	// mux.HandleFunc("/{$}", root)
+	mux.HandleFunc("/", root)
+	mux.HandleFunc("/registering", handleRegisterHtml)
 	mux.HandleFunc("/ping", ping)
 	mux.HandleFunc("/register", register)
-	mux.HandleFunc("/", handleRegisterHtml)
+	mux.HandleFunc("/log", handleLoginPage)
+	mux.HandleFunc("/getusers", getUsers)
+	mux.HandleFunc("/login", login)
 
 	fmt.Println("server running on port 8080")
-	var err interface {
-	}
+	var err interface{}
 
 	db, err = sql.Open("sqlite3", "forum.db")
 	if err != nil {
