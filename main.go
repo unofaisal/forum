@@ -3,15 +3,17 @@ package main
 import (
 	"bytes"
 	"database/sql"
-
-	// "encoding/json"
-
-	// "encoding/json"
 	"fmt"
-	// "io"
 	"log"
 	"log/slog"
 	"net/http"
+
+	// "encoding/json"
+	"github.com/gofrs/uuid/v5"
+
+	// "encoding/json"
+	"golang.org/x/crypto/bcrypt"
+	// "io"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -22,14 +24,13 @@ type UserData struct {
 	Name string
 }
 
-func root(w http.ResponseWriter, r *http.Request){
+func root(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "ui/templates/home.html")
 
 	_, err := w.Write([]byte("this is the home page\n"))
 	if err != nil {
 		slog.Error("error writing the response")
 	}
-
 }
 
 func ping(w http.ResponseWriter, r *http.Request) {
@@ -56,53 +57,77 @@ func ping(w http.ResponseWriter, r *http.Request) {
 func register(w http.ResponseWriter, r *http.Request) {
 	// http.ServeFile(w, r, "ui/templates/register.html")
 
-	Firstname := r.FormValue("name")
+	// Firstname := r.FormValue("name")
 	username := r.FormValue("username")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
+	confPassword := r.FormValue("confirmPassword")
+	confPassError := r.FormValue("confirmPasswordError")
 
 	// userList := params["name"]
 
 	// fmt.Println(params)
-	if Firstname == "" || username == "" || password == "" || email == "" {
+	if confPassword == "" || username == "" || password == "" || email == "" {
 		http.Error(w, "all fields are required", http.StatusBadRequest)
 		return
 	}
 
+	if confPassword != password {
+		http.Error(w, "passwords do not match", http.StatusBadRequest)
+		// confPassError = "passwords do not match"
+		return
+	}
+	// confPassError = r.FormValue("confirmPasswordError")
+
 	schema := `
-	INSERT INTO users (username, password_hash) VALUES (?, ?)`
+	INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)`
 
 	user := "user"
-	name := "unknown"
+	// name := "unknown"
 	pass := "unknown"
 	mail := "unknown"
 	// var output bytes.Buffer
 
 	// output.WriteString("Welcome ")
 
-	if len("unknown") > 0 {
-		user = username
-		pass = password
-		mail = email
-		name = Firstname
+	// if len("unknown") > 0 {
+	user = username
+	pass = password
+	mail = email
+	// name = Firstname
+	// }
+
+	passByte := []byte(password)
+
+	fmt.Println(passByte)
+
+	hashedPassword, error := bcrypt.GenerateFromPassword(passByte, bcrypt.DefaultCost)
+
+	if error != nil {
+		http.Error(w, "failed to hash the password", http.StatusInternalServerError)
+		return
+		// panic(error)
 	}
 
-	_, err := db.Exec(schema, username, password)
+	_, err := db.Exec(schema, username, string(hashedPassword), email)
 
 	if err != nil {
 		fmt.Println("DB error: ", err)
-		http.Error(w, "failed to save data into databse username already exists", http.StatusInternalServerError)
+		http.Error(w, "failed to save data into databse username or email already exists", http.StatusInternalServerError)
 		return
 	} else {
 		fmt.Fprintln(w, "data saved successfully into database", http.StatusOK)
 	}
 
 	// _, err := w.Write(output.Bytes())
+	fmt.Println("this is the errror: ", confPassError)
 
-	fmt.Fprintf(w, "welcome %s\nUsername: %s\nEmail: %s\nPassword: %s\n", name, user, mail, pass)
+	fmt.Fprintf(w, "Username: %s\nEmail: %s\nPassword: %s\n", user, mail, pass)
 	// body, diode := io.ReadAll(r.Body)
 
-	var data UserData
+	// var data UserData
+
+
 
 	// err := json.Unmarshal([]byte(name), &data.Name)
 	// diode := json.NewDecoder(r.Body).Decode(&data)
@@ -112,25 +137,29 @@ func register(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
-	fmt.Println(name)
+	// fmt.Println(name)
 	// fmt.Println(&db)
-	fmt.Println(data.Name)
+	// fmt.Println(data.Name)
+
+
+
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
 	user := r.FormValue("username")
+	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	if user == "" || password == "" {
+	if email == "" || password == "" {
 		http.Error(w, "all fields must be filled", http.StatusBadRequest)
 		return
 	}
 
 	schema := `
-	SELECT username, password_hash FROM users WHERE username = ?
+	SELECT username, password_hash FROM users WHERE email = ?
 	`
 
-	row := db.QueryRow(schema, user)
+	row := db.QueryRow(schema, email)
 
 	// if row == "" {
 	// 	http.Error(w, "user not found", http.StatusNotFound)
@@ -141,21 +170,33 @@ func login(w http.ResponseWriter, r *http.Request) {
 	// 	http.Error(w, "user not found", http.StatusNotFound)
 	// 	return
 	// }
+	var dbemail, dbpassword string
 
-	var dbusername, dbpassword string
+	row.Scan(&dbemail, &dbpassword)
+	
+	
+	
+	err := bcrypt.CompareHashAndPassword([]byte(dbpassword), []byte(password))
 
-	row.Scan(&dbusername, &dbpassword)
-	if dbpassword != password {
-		http.Error(w, "user unknown try again", http.StatusForbidden)
-		return
+	if err != nil {
+			http.Error(w, "user unknown try again", http.StatusForbidden)
+			return
 	}
-	fmt.Println(dbusername, user)
+	fmt.Println(dbpassword)
+
+	// if dbpassword != password {
+	// 	http.Error(w, "user unknown try again", http.StatusForbidden)
+	// 	return
+	// }
+
+
+	fmt.Println(dbemail, user)
 
 	// for row.Next() {
 	// 	// var username, password string
 	// 	row.Scan(&username, &password)
 
-	fmt.Fprintf(w, "Welcome back %v", dbusername)
+	fmt.Fprintf(w, "Welcome back %v", dbemail)
 	// }
 }
 
@@ -165,7 +206,9 @@ func handleLoginPage(w http.ResponseWriter, r *http.Request) {
 
 func handleRegisterHtml(w http.ResponseWriter, r *http.Request) {
 	// fs := http.FileServer(http.Dir("./ui/templates/register.html"))
-	http.ServeFile(w, r, "ui/templates/register.html")
+	http.ServeFile(w, r, "ui/templates/signup.html")
+	// http.Handle("registering", fs)
+	// fs.ServeHTTP(w,r)
 }
 
 func handleHomePage(w http.ResponseWriter, r *http.Request) {
@@ -174,7 +217,7 @@ func handleHomePage(w http.ResponseWriter, r *http.Request) {
 
 func getUsers(w http.ResponseWriter, r *http.Request) {
 	schema := `
-	SELECT username, password_hash FROM users`
+	SELECT username, password_hash, email FROM users`
 	row, err := db.Query(schema)
 	if err != nil {
 		http.Error(w, "failed to retrieve data from the database", http.StatusInternalServerError)
@@ -183,10 +226,10 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 	// defer db.Close()
 
 	for row.Next() {
-		var username, password string
-		row.Scan(&username, &password)
+		var username, password, email string
+		row.Scan(&username, &password, &email)
 
-		fmt.Fprintf(w, "username: %v, password: %v\n", username, password)
+		fmt.Fprintf(w, "username: %v, password: %v, email: %v\n", username, password, email)
 	}
 }
 
@@ -201,6 +244,7 @@ func main() {
 	mux.HandleFunc("/getusers", getUsers)
 	mux.HandleFunc("/login", login)
 
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./ui/static/"))))
 	fmt.Println("server running on port 8080")
 	var err interface{}
 
@@ -209,11 +253,19 @@ func main() {
 		fmt.Errorf("failed to open database %v", err)
 	}
 
+	u4, err := uuid.NewV4()
+	if err != nil {
+		log.Fatalf("failed to generate unique id %v", err)
+	}
+
+	fmt.Println(u4)
+
 	schema := `
 	CREATE TABLE IF NOT EXISTS users(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		username TEXT NOT NULL UNIQUE,
 		password_hash TEXT NOT NULL,
+		email TEXT NOT NULL UNIQUE,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
 		`
