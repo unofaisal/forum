@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	// "encoding/json"
 
+	// "encoding/json"
 	"fmt"
 	// "io"
 	"log"
@@ -49,11 +50,11 @@ func ping(w http.ResponseWriter, r *http.Request) {
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
-	Firstname := r.FormValue("name")
-	username := r.FormValue("username")
+	Firstname:= r.FormValue("name")
+	username:= r.FormValue("username")
 	email := r.FormValue("email")
-	password := r.FormValue("password")
-
+	password:= r.FormValue("password")
+	
 	// userList := params["name"]
 
 	// fmt.Println(params)
@@ -61,6 +62,10 @@ func register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "all fields are required", http.StatusBadRequest)
 		return
 	}
+
+	schema := `
+	INSERT INTO users (username, password_hash) VALUES (?, ?)`
+
 
 	user := "user"
 	name := "unknown"
@@ -77,12 +82,20 @@ func register(w http.ResponseWriter, r *http.Request) {
 		name = Firstname
 	}
 
-	fmt.Fprintf(w, "welcome %s\nUsername: %s\nEmail: %s\nPassword: %s\n", name, user, mail, pass)
+_,err := db.Exec(schema, username, password)
 
-	// _, err := w.Write(output.Bytes())
-	// if err != nil {
-	// 	http.Error(w, "something went wrong", http.StatusInternalServerError)
-	// }
+
+if err != nil {
+	fmt.Println("DB error: ", err)
+	http.Error(w, "failed to save data into databse", http.StatusInternalServerError)
+	return
+	}else{
+		fmt.Fprintln(w, "data saved successfully into database", http.StatusOK)
+	}
+
+// _, err := w.Write(output.Bytes())
+
+fmt.Fprintf(w, "welcome %s\nUsername: %s\nEmail: %s\nPassword: %s\n", name, user, mail, pass)
 	// body, diode := io.ReadAll(r.Body)
 
 	var data UserData
@@ -96,6 +109,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	fmt.Println(name)
+	// fmt.Println(&db)
 	fmt.Println(data.Name)
 }
 
@@ -104,15 +118,37 @@ func handleRegisterHtml(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "ui/templates/register.html")
 }
 
+func getUsers(w http.ResponseWriter, r *http.Request) {
+	schema := `
+	SELECT username, password_hash FROM users`
+	row, err := db.Query(schema)
+	
+	if err != nil {
+		http.Error(w, "failed to retrieve data from the database", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	for row.Next() {
+		var username, password string
+		row.Scan(&username, &password)
+
+		fmt.Fprintf(w, "username: %v, password: %v", username, password)
+	}
+	
+}
+
 func main() {
 	mux := http.NewServeMux()
 	// mux.HandleFunc("/{$}", root)
 	mux.HandleFunc("/ping", ping)
 	mux.HandleFunc("/register", register)
 	mux.HandleFunc("/", handleRegisterHtml)
+	mux.HandleFunc("/getusers", getUsers)
 
 	fmt.Println("server running on port 8080")
-	var err interface {
+	var err interface{
+
 	}
 
 	db, err = sql.Open("sqlite3", "forum.db")
@@ -137,6 +173,6 @@ func main() {
 		fmt.Println("user created successfully")
 	}
 
-	defer db.Close()
+	// defer db.Close()
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
