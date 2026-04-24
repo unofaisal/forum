@@ -40,7 +40,10 @@
         <main class="content-feed">
             <h2>Recent Conversations</h2>
             <div id="posts-container">
-                <div class="loading-text">Loading conversations...</div>
+                {{range .}}
+                <h2>{{.Title}}</h2>
+                <p>{{.Content}}</p>
+                {{end}}
             </div>
         </main>
     </div>

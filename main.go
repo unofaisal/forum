@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"log/slog"
 	"net/http"
+	"text/template"
 
 	// "encoding/json"
 	"github.com/gofrs/uuid/v5"
@@ -24,13 +24,34 @@ type UserData struct {
 	Name string
 }
 
-func root(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "ui/templates/home.html")
+type Post struct {
+	Title   string
+	Content string
+}
 
-	_, err := w.Write([]byte("this is the home page\n"))
+func root(w http.ResponseWriter, r *http.Request) {
+	schemaPostGet := `SELECT title, content FROM posts`
+
+	row, err := db.Query(schemaPostGet)
 	if err != nil {
-		slog.Error("error writing the response")
 	}
+
+	var post []Post
+
+	for row.Next() {
+		var title, content string
+		row.Scan(&title, &content)
+		post = append(post, Post{title, content})
+	}
+	// fmt.Println(post[0])
+
+	tmpl, err := template.ParseFiles("ui/templates/home.html")
+	if err != nil {
+		fmt.Println("post error: %v", err)
+		http.Error(w, "failed to update ui %v", http.StatusNotFound)
+		return
+	}
+	tmpl.Execute(w, post)
 }
 
 func ping(w http.ResponseWriter, r *http.Request) {
@@ -127,8 +148,6 @@ func register(w http.ResponseWriter, r *http.Request) {
 
 	// var data UserData
 
-
-
 	// err := json.Unmarshal([]byte(name), &data.Name)
 	// diode := json.NewDecoder(r.Body).Decode(&data)
 
@@ -140,9 +159,6 @@ func register(w http.ResponseWriter, r *http.Request) {
 	// fmt.Println(name)
 	// fmt.Println(&db)
 	// fmt.Println(data.Name)
-
-
-
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
@@ -173,14 +189,11 @@ func login(w http.ResponseWriter, r *http.Request) {
 	var dbemail, dbpassword string
 
 	row.Scan(&dbemail, &dbpassword)
-	
-	
-	
-	err := bcrypt.CompareHashAndPassword([]byte(dbpassword), []byte(password))
 
+	err := bcrypt.CompareHashAndPassword([]byte(dbpassword), []byte(password))
 	if err != nil {
-			http.Error(w, "user unknown try again", http.StatusForbidden)
-			return
+		http.Error(w, "user unknown try again", http.StatusForbidden)
+		return
 	}
 	fmt.Println(dbpassword)
 
@@ -188,7 +201,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 	// 	http.Error(w, "user unknown try again", http.StatusForbidden)
 	// 	return
 	// }
-
 
 	fmt.Println(dbemail, user)
 
@@ -233,12 +245,11 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handlePostPage(w http.ResponseWriter, r *http.Request){
+func handlePostPage(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "ui/templates/post.html")
 }
 
 func sendPost(w http.ResponseWriter, r *http.Request) {
-
 	postTitle := r.FormValue("postitle")
 	postContent := r.FormValue("postContent")
 	user_id := 1
@@ -254,12 +265,13 @@ func sendPost(w http.ResponseWriter, r *http.Request) {
 
 	schema := `INSERT INTO posts (title, content, user_id) VALUES (?, ?, ?)`
 
-	_,err := db.Exec(schema, postTitle, postContent, user_id)
+	_, err := db.Exec(schema, postTitle, postContent, user_id)
 
 	if err != nil {
 		fmt.Printf("failed to add post into the database: %v", err)
-	}else{
-		fmt.Fprintf(w, "successfuly added post into the database")
+	} else {
+		// fmt.Fprintf(w, "successfuly added post into the database")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }
 
@@ -302,6 +314,8 @@ func main() {
 		)
 		`
 	_, err = db.Exec(schema)
+
+	setup()
 
 	if err != nil {
 		fmt.Errorf("failed to create tables: %v", err)
