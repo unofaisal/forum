@@ -23,6 +23,17 @@ func setup() {
 		`
 	_, err = db.Exec(schemaPost)
 
+	schemaComment := `
+	CREATE TABLE IF NOT exists comments(
+		id TEXT PRIMARY KEY AUTOINCREMENT,
+		comment TEXT NOT NULL,
+		user_id INTEGER NOT NULL,
+		post_id INTERGER NOT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			)`
+
+	_,err = db.Exec(schemaComment)
+
 	if err != nil {
 		fmt.Errorf("failed to create tables: %v", err)
 		return
