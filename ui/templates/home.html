@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum</title>
+    <link rel="stylesheet" href="../static/css/home.css">
+    </head>
+    <body>
+        <header class="header">
+            <a href="#" class="logo">Forum</a>
+        <div class="header-actions">
+            <a href="/post"><button class="btn btn-primary">+ New Post</button></a>
+           <a href="/log"><button class="btn btn-outline">Log In</button></a>
+           <a href="/registering"><button class="btn btn-outline">Register</button></a>
+        </div>
+        </header>
+
+        <div class="main-container">
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Feeds</h3>
+                <nav class="nav-list">
+                    <a href="#" class="nav-item active">Public Feed</a>
+                    <a href="/getposts" class="nav-item">My Posts</a>
+                    <a href="#" class="nav-item">Liked Posts</a>
+                </nav>
+            </div>
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Filter by Category</h3>
+                <div class="filter-tags">
+                    <span class="pill">Technology</span>
+                    <span class="pill">Gaming</span>
+                    <span class="pill">Science</span>
+                    <span class="pill">Music</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="content-feed">
+            <h2>Recent Conversations</h2>
+            <div id="posts-container">
+                <div class="loading-text">Loading conversations...</div>
+            </div>
+        </main>
+    </div>
+    </body>
+</html>        
