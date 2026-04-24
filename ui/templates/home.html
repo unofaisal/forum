@@ -43,6 +43,38 @@
                 {{range .}}
                 <h2>{{.Title}}</h2>
                 <p>{{.Content}}</p>
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="user-meta">
+                            <div class="avatar" style="background: var(--primary-purple)">U</div>
+                            <div>
+                                <div class="author-name">Anonymous</div>
+                                <div class="post-timestamp">Just now</div>
+                            </div>
+                        </div>
+                        <span class="tag-dark">General</span>
+                    </div>
+                    <h3 class="post-title">{{.Title}}</h3>
+                    <p class="post-body">{{.Content}}</p>
+                    <div class="post-footer">
+                        <div class="interaction-group">
+                            <button class="action-btn like">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"></path></svg>
+                                <span>0</span>
+                            </button>
+                            <button class="action-btn dislike">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15V19a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zM17 2h3a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-3"></path></svg>
+                                <span>0</span>
+                            </button>
+                        </div>
+                        <div class="interaction-group">
+                            <button class="action-btn comment">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                <span>0 Comments</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 {{end}}
             </div>
         </main>
