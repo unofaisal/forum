@@ -12,6 +12,24 @@ func setup() {
 		fmt.Errorf("failed to open database %v", err)
 	}
 
+		schemaComment := `
+	CREATE TABLE IF NOT exists comments(
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		comment TEXT NOT NULL,
+		user_id INTEGER NOT NULL,
+		post_id INTEGER NOT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			)`
+
+	_,err = db.Exec(schemaComment)
+
+	if err != nil {
+		fmt.Errorf("failed to create tables: %v", err)
+		return
+	} else {
+		fmt.Println("comments table created successfully")
+	}
+
 	schemaPost := `
 	CREATE TABLE IF NOT EXISTS posts(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,21 +41,12 @@ func setup() {
 		`
 	_, err = db.Exec(schemaPost)
 
-	schemaComment := `
-	CREATE TABLE IF NOT exists comments(
-		id TEXT PRIMARY KEY AUTOINCREMENT,
-		comment TEXT NOT NULL,
-		user_id INTEGER NOT NULL,
-		post_id INTERGER NOT NULL,
-		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-			)`
-
-	_,err = db.Exec(schemaComment)
-
 	if err != nil {
 		fmt.Errorf("failed to create tables: %v", err)
 		return
 	} else {
-		fmt.Println("post table created successfully")
+		fmt.Println("posts table created successfully")
 	}
+
+
 }
