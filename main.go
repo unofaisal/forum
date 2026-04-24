@@ -233,6 +233,36 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handlePostPage(w http.ResponseWriter, r *http.Request){
+	http.ServeFile(w, r, "ui/templates/post.html")
+}
+
+func sendPost(w http.ResponseWriter, r *http.Request) {
+
+	postTitle := r.FormValue("postitle")
+	postContent := r.FormValue("postContent")
+	user_id := 1
+	fmt.Println("post sent successfully")
+	if postTitle == "" {
+		http.Error(w, "post title is required", http.StatusBadRequest)
+		return
+	}
+	if postContent == "" {
+		http.Error(w, "post contentn is required", http.StatusBadRequest)
+		return
+	}
+
+	schema := `INSERT INTO posts (title, content, user_id) VALUES (?, ?, ?)`
+
+	_,err := db.Exec(schema, postTitle, postContent, user_id)
+
+	if err != nil {
+		fmt.Printf("failed to add post into the database: %v", err)
+	}else{
+		fmt.Fprintf(w, "successfuly added post into the database")
+	}
+}
+
 func main() {
 	mux := http.NewServeMux()
 	// mux.HandleFunc("/{$}", root)
@@ -243,6 +273,8 @@ func main() {
 	mux.HandleFunc("/log", handleLoginPage)
 	mux.HandleFunc("/getusers", getUsers)
 	mux.HandleFunc("/login", login)
+	mux.HandleFunc("/sendpost", sendPost)
+	mux.HandleFunc("/post", handlePostPage)
 
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./ui/static/"))))
 	fmt.Println("server running on port 8080")
