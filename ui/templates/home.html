@@ -44,5 +44,20 @@
             </div>
         </main>
     </div>
+
+     <!-- New Post Modal -->
+    <div id="modal-overlay" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h3 style="margin-bottom: 20px">Create New Post</h3>
+            <input type="text" id="post-title-input" placeholder="Thread Title">
+            <textarea id="post-body-input" placeholder="What's on your mind?"></textarea>
+            <input type="text" id="post-category-input" placeholder="Category (e.g. Technology)">
+            <div style="display: flex; gap: 10px; justify-content: flex-end">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitPost()">Publish Post</button>
+            </div>
+        </div>
+    </div>   
+    
     </body>
 </html>        
