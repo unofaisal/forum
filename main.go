@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"text/template"
 
 	// "encoding/json"
@@ -24,26 +25,62 @@ type UserData struct {
 	Name string
 }
 
+type Comment struct {
+	ID      int
+	Comment string
+	User_id int
+	Post_id int
+}
+
 type Post struct {
-	Title   string
-	Content string
+	ID       int
+	Title    string
+	Content  string
+	Comments []Comment
+	CommentCount int
 }
 
 func root(w http.ResponseWriter, r *http.Request) {
-	schemaPostGet := `SELECT title, content FROM posts`
+	schemaPostGet := `SELECT id, title, content FROM posts`
 
 	row, err := db.Query(schemaPostGet)
 	if err != nil {
+		http.Error(w, "failed to load posts", http.StatusInternalServerError)
+		return
 	}
+
+	defer row.Close()
 
 	var post []Post
 
 	for row.Next() {
-		var title, content string
-		row.Scan(&title, &content)
-		post = append(post, Post{title, content})
+		var p Post
+
+		err := row.Scan(&p.ID, &p.Title, &p.Content)
+		if err != nil {
+			continue
+		}
+		countCommentQuery := `SELECT COUNT(*) FROM comments WHERE post_id = ?`
+
+		err = db.QueryRow(countCommentQuery, p.ID).Scan(&p.CommentCount)
+		if err != nil {
+			p.CommentCount = 0
+		}
+		commentsQuery := `SELECT id, comment, user_id, post_id FROM comments WHERE post_id = ?`
+
+		commentRows, err := db.Query(commentsQuery, p.ID)
+		if err == nil {
+			for commentRows.Next() {
+				var c Comment
+				commentRows.Scan(&c.ID, &c.Comment, &c.User_id, &c.Post_id)
+				p.Comments = append(p.Comments, c)
+			}
+			commentRows.Close()
+		}
+
+		post = append(post, p)
+		fmt.Println(post)
 	}
-	// fmt.Println(post[0])
 
 	tmpl, err := template.ParseFiles("ui/templates/home.html")
 	if err != nil {
@@ -275,6 +312,46 @@ func sendPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func comment(w http.ResponseWriter, r *http.Request) {
+	content := r.FormValue("content")
+	postID, err := strconv.Atoi(r.FormValue("post_id"))
+	user_id := 1
+	// created_at := time.Now()
+
+	if content == "" {
+		http.Error(w, "comment cannot be empty", http.StatusBadRequest)
+		return
+	}
+	schemaComment := `INSERT INTO comments (comment, user_id, post_id) VALUES (?, ?, ?)`
+
+	_, err = db.Exec(schemaComment, content, user_id, postID)
+
+	if err != nil {
+		fmt.Printf("failed to add comment into the database: %v", err)
+		return
+	} else {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+}
+
+func getComments(w http.ResponseWriter, r *http.Request) {
+	schema := `
+	SELECT content, post_id, user_id FROM comments`
+	row, err := db.Query(schema)
+	if err != nil {
+		http.Error(w, "failed to retrieve data from the database", http.StatusInternalServerError)
+		return
+	}
+	// defer db.Close()
+
+	for row.Next() {
+		var content, post_id, user_id string
+		row.Scan(&content, &post_id, &user_id)
+
+		fmt.Fprintf(w, "content: %v, post_id: %v, user_id: %v\n", content, post_id, user_id)
+	}
+}
+
 func main() {
 	mux := http.NewServeMux()
 	// mux.HandleFunc("/{$}", root)
@@ -284,7 +361,9 @@ func main() {
 	mux.HandleFunc("/register", register)
 	mux.HandleFunc("/log", handleLoginPage)
 	mux.HandleFunc("/getusers", getUsers)
+	mux.HandleFunc("/getcomments", getComments)
 	mux.HandleFunc("/login", login)
+	mux.HandleFunc("/comment", comment)
 	mux.HandleFunc("/sendpost", sendPost)
 	mux.HandleFunc("/post", handlePostPage)
 
