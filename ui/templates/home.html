@@ -89,16 +89,36 @@
                     <div class="comment-section">
                         <div class="comment-input-wrapper">
                             <form action="/comment" method="POST">
-
-                                <textarea placeholder="Write a comment..." class="comment-field" name="content"></textarea>
-                                <input type="hidden" name="post_id" value="{{.ID}}">
-                                <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
+                            <textarea  placeholder="Add to the conversation..." class="comment-field" name="content"></textarea>
+                            <input type="text" name="post_id" value="{{.ID}}">
+                            <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
                             </form>
                         </div>
                         <div class="comments-display-list">
-                            {{range .Comments}}
-                            <p class="no-comments">{{.Comment}}</p>
-                            {{end}}
+                            <!-- Example Comment Item -->
+                            <div class="comment-item">
+                                <div class="comment-header">
+                                    <div class="avatar-sm">J</div>
+                                    <span class="commenter-name">Jane Doe</span>
+                                    <span class="comment-time">2 hours ago</span>
+                                </div>
+                                {{range .Comments}}
+                                <p class="comment-content">
+                                    {{.Comment}}
+                                </p>
+                                {{end}}
+                                <div class="comment-actions">
+                                    <button class="action-btn like" onclick="handleLike(this)">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"></path></svg>
+                                        <span class="count">2</span>
+                                    </button>
+                                    <button class="action-btn dislike" onclick="handleDislike(this)">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15V19a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zM17 2h3a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-3"></path></svg>
+                                        <span class="count">0</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- End Example Comment Item -->
                         </div>
                     </div>
                 </div>
