@@ -38,6 +38,8 @@ type Post struct {
 	Content  string
 	Comments []Comment
 	CommentCount int
+	LikeCount    int
+	DislikeCount int
 }
 
 func root(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +79,11 @@ func root(w http.ResponseWriter, r *http.Request) {
 			}
 			commentRows.Close()
 		}
+
+		likes, dislikes := getLikes(p.ID)
+
+p.LikeCount = likes
+p.DislikeCount = dislikes
 
 		post = append(post, p)
 		fmt.Println(post)
@@ -352,6 +359,75 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getLikes(postID int) (int, int) {
+	var likes int
+	var dislikes int
+
+	err := db.QueryRow(
+		`SELECT COUNT(*) FROM reactions WHERE post_id = ? AND value = 1`,
+		postID,
+	).Scan(&likes)
+
+	if err != nil {
+		likes = 0
+	}
+
+	err = db.QueryRow(
+		`SELECT COUNT(*) FROM reactions WHERE post_id = ? AND value = -1`,
+		postID,
+	).Scan(&dislikes)
+
+	if err != nil {
+		dislikes = 0
+	}
+
+	return likes, dislikes
+}
+
+func like(w http.ResponseWriter, r *http.Request) {
+	postID, _ := strconv.Atoi(r.FormValue("post_id"))
+	value, _ := strconv.Atoi(r.FormValue("value"))
+
+	userID := 1 
+var existing int
+err := db.QueryRow(
+	`SELECT value FROM reactions WHERE user_id = ? AND post_id = ?`,
+	userID, postID,
+).Scan(&existing)
+
+switch {
+case err == sql.ErrNoRows:
+	_, err = db.Exec(
+		`INSERT INTO reactions (user_id, post_id, value) VALUES (?, ?, ?)`,
+		userID, postID, value,
+	)
+
+case err != nil:
+	log.Println("query error:", err)
+
+default:
+	// row exists
+
+	if existing == value {
+		_, err = db.Exec(
+			`DELETE FROM reactions WHERE user_id = ? AND post_id = ?`,
+			userID, postID,
+		)
+	} else {
+		// switch like ↔ dislike
+		_, err = db.Exec(
+			`UPDATE reactions SET value = ? WHERE user_id = ? AND post_id = ?`,
+			value, userID, postID,
+		)
+	}
+}
+
+if err != nil {
+	log.Println("reaction write error:", err)
+}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
 func main() {
 	mux := http.NewServeMux()
 	// mux.HandleFunc("/{$}", root)
@@ -366,7 +442,7 @@ func main() {
 	mux.HandleFunc("/comment", comment)
 	mux.HandleFunc("/sendpost", sendPost)
 	mux.HandleFunc("/post", handlePostPage)
-
+	mux.HandleFunc("/like", like)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./ui/static/"))))
 	fmt.Println("server running on port 8080")
 	var err interface{}
