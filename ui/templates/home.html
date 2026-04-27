@@ -30,11 +30,13 @@
             <div class="sidebar-section">
                 <h3 class="sidebar-title">Filter by Category</h3>
                 <div class="filter-tags">
-                    <span class="pill">Technology</span>
-                    <span class="pill">Gaming</span>
-                    <span class="pill">Science</span>
-                    <span class="pill">Music</span>
-                </div>
+        <a href="/?category=Technology" class="pill">Technology</a>
+        <a href="/?category=Gaming" class="pill">Gaming</a>
+        <a href="/?category=Science" class="pill">Science</a>
+        <a href="/?category=Music" class="pill">Music</a>
+        <hr>
+        <a href="/" class="pill" style="background: var(--primary-purple); color: white;">Clear Filters</a>
+    </div>
             </div>
         </aside>
 
@@ -61,7 +63,13 @@
                                 <div class="post-timestamp">Just now</div>
                             </div>
                         </div>
-                        <span class="tag-dark">General</span>
+                        <div class="post-tags">
+                            {{range .Categories}}
+                            <span class="tag-dark">{{.}}</span>
+                            {{else}}
+                            <span class="tag-dark">Uncategorized</span>
+                            {{end}}
+                        </div>
                     </div>
 
                     <h3 class="post-title">{{.Title}}</h3>

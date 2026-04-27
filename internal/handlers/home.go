@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"database/sql"
 	"net/http"
-
 	"forum/internal/handlers/models"
 )
 
@@ -36,14 +36,29 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 	// http.ServeFile(w, r, "ui/templates/home.html")
 
 	fmt.Println("Home hit")
-	schemaPostGet := `SELECT id, title, content FROM posts`
+	filterCategory := r.URL.Query().Get("category")
 
-	row, err := h.DB.Query(schemaPostGet)
+	var row *sql.Rows
+	var err error
+
+	// 2. Decide which query to run based on whether a filter exists
+	if filterCategory != "" {
+		schemaFilterGet := `
+			SELECT p.id, p.title, p.content 
+			FROM posts p
+			JOIN post_categories pc ON p.id = pc.post_id
+			JOIN categories c ON pc.category_id = c.id
+			WHERE c.name = ?`
+		row, err = h.DB.Query(schemaFilterGet, filterCategory)
+	} else {
+		schemaPostGet := `SELECT id, title, content FROM posts`
+		row, err = h.DB.Query(schemaPostGet)
+	}
+
 	if err != nil {
 		http.Error(w, "failed to load posts "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	defer row.Close()
 
 	var post []models.Post
@@ -55,6 +70,23 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			continue
 		}
+
+		categoryQuery := `
+			SELECT c.name FROM categories c
+			JOIN post_categories pc ON c.id = pc.category_id
+			WHERE pc.post_id = ?`
+		
+		catRows, err := h.DB.Query(categoryQuery, p.ID)
+		if err == nil {
+			for catRows.Next() {
+				var catName string
+				if err := catRows.Scan(&catName); err == nil {
+					p.Categories = append(p.Categories, catName)
+				}
+			}
+			catRows.Close()
+		}
+
 		countCommentQuery := `SELECT COUNT(*) FROM comments WHERE post_id = ?`
 
 		err = h.DB.QueryRow(countCommentQuery, p.ID).Scan(&p.CommentCount)
