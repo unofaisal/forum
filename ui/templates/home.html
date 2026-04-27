@@ -61,7 +61,13 @@
                                 <div class="post-timestamp">Just now</div>
                             </div>
                         </div>
-                        <span class="tag-dark">General</span>
+                        <div class="post-tags">
+                            {{range .Categories}}
+                            <span class="tag-dark">{{.}}</span>
+                            {{else}}
+                            <span class="tag-dark">Uncategorized</span>
+                            {{end}}
+                        </div>
                     </div>
 
                     <h3 class="post-title">{{.Title}}</h3>
