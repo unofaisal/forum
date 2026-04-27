@@ -26,17 +26,19 @@ type UserData struct {
 }
 
 type Comment struct {
-	ID      int
-	Comment string
-	User_id int
-	Post_id int
+	ID       int
+	Comment  string
+	User_id  int
+	Post_id  int
+	Username string
+	Initial string
 }
 
 type Post struct {
-	ID       int
-	Title    string
-	Content  string
-	Comments []Comment
+	ID           int
+	Title        string
+	Content      string
+	Comments     []Comment
 	CommentCount int
 	LikeCount    int
 	DislikeCount int
@@ -68,13 +70,36 @@ func root(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			p.CommentCount = 0
 		}
-		commentsQuery := `SELECT id, comment, user_id, post_id FROM comments WHERE post_id = ?`
+		commentsQuery := `SELECT 
+	c.id, 
+	c.comment, 
+	c.user_id, 
+	c.post_id,
+	u.username
+FROM comments c
+LEFT JOIN users u ON c.user_id = u.id
+WHERE c.post_id = ?`
 
 		commentRows, err := db.Query(commentsQuery, p.ID)
 		if err == nil {
 			for commentRows.Next() {
 				var c Comment
-				commentRows.Scan(&c.ID, &c.Comment, &c.User_id, &c.Post_id)
+				err := commentRows.Scan(
+					&c.ID,
+					&c.Comment,
+					&c.User_id,
+					&c.Post_id,
+					&c.Username,
+				)
+				if err != nil {
+					log.Println("scan error:", err)
+					continue
+				}
+				if len(c.Username) > 0 {
+					c.Initial = string(c.Username[0])
+				}else {
+					c.Initial = "?"
+				}
 				p.Comments = append(p.Comments, c)
 			}
 			commentRows.Close()
@@ -82,8 +107,8 @@ func root(w http.ResponseWriter, r *http.Request) {
 
 		likes, dislikes := getLikes(p.ID)
 
-p.LikeCount = likes
-p.DislikeCount = dislikes
+		p.LikeCount = likes
+		p.DislikeCount = dislikes
 
 		post = append(post, p)
 		fmt.Println(post)
@@ -367,7 +392,6 @@ func getLikes(postID int) (int, int) {
 		`SELECT COUNT(*) FROM reactions WHERE post_id = ? AND value = 1`,
 		postID,
 	).Scan(&likes)
-
 	if err != nil {
 		likes = 0
 	}
@@ -376,7 +400,6 @@ func getLikes(postID int) (int, int) {
 		`SELECT COUNT(*) FROM reactions WHERE post_id = ? AND value = -1`,
 		postID,
 	).Scan(&dislikes)
-
 	if err != nil {
 		dislikes = 0
 	}
@@ -388,43 +411,43 @@ func like(w http.ResponseWriter, r *http.Request) {
 	postID, _ := strconv.Atoi(r.FormValue("post_id"))
 	value, _ := strconv.Atoi(r.FormValue("value"))
 
-	userID := 1 
-var existing int
-err := db.QueryRow(
-	`SELECT value FROM reactions WHERE user_id = ? AND post_id = ?`,
-	userID, postID,
-).Scan(&existing)
+	userID := 1
+	var existing int
+	err := db.QueryRow(
+		`SELECT value FROM reactions WHERE user_id = ? AND post_id = ?`,
+		userID, postID,
+	).Scan(&existing)
 
-switch {
-case err == sql.ErrNoRows:
-	_, err = db.Exec(
-		`INSERT INTO reactions (user_id, post_id, value) VALUES (?, ?, ?)`,
-		userID, postID, value,
-	)
-
-case err != nil:
-	log.Println("query error:", err)
-
-default:
-	// row exists
-
-	if existing == value {
+	switch {
+	case err == sql.ErrNoRows:
 		_, err = db.Exec(
-			`DELETE FROM reactions WHERE user_id = ? AND post_id = ?`,
-			userID, postID,
+			`INSERT INTO reactions (user_id, post_id, value) VALUES (?, ?, ?)`,
+			userID, postID, value,
 		)
-	} else {
-		// switch like ↔ dislike
-		_, err = db.Exec(
-			`UPDATE reactions SET value = ? WHERE user_id = ? AND post_id = ?`,
-			value, userID, postID,
-		)
+
+	case err != nil:
+		log.Println("query error:", err)
+
+	default:
+		// row exists
+
+		if existing == value {
+			_, err = db.Exec(
+				`DELETE FROM reactions WHERE user_id = ? AND post_id = ?`,
+				userID, postID,
+			)
+		} else {
+			// switch like ↔ dislike
+			_, err = db.Exec(
+				`UPDATE reactions SET value = ? WHERE user_id = ? AND post_id = ?`,
+				value, userID, postID,
+			)
+		}
 	}
-}
 
-if err != nil {
-	log.Println("reaction write error:", err)
-}
+	if err != nil {
+		log.Println("reaction write error:", err)
+	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
