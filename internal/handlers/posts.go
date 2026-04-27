@@ -3,14 +3,12 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-
-	"forum/internal/auth"
 )
 
 func (h *Handler) SendPost(w http.ResponseWriter, r *http.Request) {
 	postTitle := r.FormValue("postitle")
 	postContent := r.FormValue("postContent")
-	user_id, ok := auth.GetUserIDFromSession(r)
+	user_id, ok := h.Auth.GetUserIDFromSession(r)
 	if !ok {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return

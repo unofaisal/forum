@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-
-	"forum/internal/auth"
 )
 
 func (h *Handler) Comment(w http.ResponseWriter, r *http.Request) {
 	content := r.FormValue("content")
 	postID, err := strconv.Atoi(r.FormValue("post_id"))
-	user_id, ok := auth.GetUserIDFromSession(r)
+
+	user_id, ok := h.Auth.GetUserIDFromSession(r)
 	if !ok {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
