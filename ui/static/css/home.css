@@ -1,34 +1,5 @@
-
-:root {
-    --bg-body: #0a0c16;
-    --bg-sidebar: #131726;
-    --bg-card: #161b2c;
-    --bg-tag: #0d1117;
-    --bg-color: #0b0f19;
-    --primary-purple: #c56cf0;
-    --text-main: #ffffff;
-    --text-muted: #8b949e;
-    --accent-active: #1c192b;
-    --card-border: #1f2434;
-    --shadow-glow: 0 0 20px rgba(230, 91, 238, 0.3);
-}
-a{
-    text-decoration: none;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-    background-color: var(--bg-body);
-    color: var(--text-main);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    padding: 20px 5%;
-    line-height: 1.5;
-}
-
 /* Layout */
 .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding: 10px 0; }
-.logo { font-size: 28px; font-weight: 800; color: var(--primary-purple); letter-spacing: -0.5px; text-decoration: none; }
 .header-actions { display: flex; gap: 15px; }
 
 .btn {
