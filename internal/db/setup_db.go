@@ -19,6 +19,19 @@ func Setup(database *sql.DB) {
 		`
 	_, err := database.Exec(schema)
 
+	schemaSessions := `
+	CREATE TABLE IF NOT EXISTS sessions(
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id INTEGER NOT NULL,
+		uuid TEXT NOT NULL UNIQUE,
+		expires_at DATETIME NOT NULL,
+		FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+	)`
+	_, err = database.Exec(schemaSessions)
+	if err == nil {
+		fmt.Println("sessions table created successfully")
+	}
+
 	schemaComment := `
 	CREATE TABLE IF NOT exists comments(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
