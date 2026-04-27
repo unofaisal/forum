@@ -1,0 +1,40 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{template "title" .}}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/static/css/base.css">
+    {{template "styles" .}}
+</head>
+<body>
+    <div class="app-wrapper">
+        <header class="header">
+            <a href="/" class="logo">FORUM</a>
+            
+            <div class="header-actions">
+                <a href="/post" class="btn btn-primary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    New Post
+                </a>
+                <a href="/login" class="btn btn-outline">Log In</a>
+                <a href="/registering" class="btn btn-outline">Register</a>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            {{template "content" .}}
+        </div>
+    </div>
+
+    {{template "scripts" .}}
+</body>
+</html>
+{{end}}

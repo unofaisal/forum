@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"html/template"
 	"log"
 	"database/sql"
 	"net/http"
@@ -139,14 +138,5 @@ WHERE c.post_id = ?`
 
 	fmt.Printf("Rendering %d posts\n", len(post))
 
-	tmpl, err := template.ParseFiles("ui/templates/home.html")
-	if err != nil {
-		fmt.Println("post error: %v", err)
-		http.Error(w, "failed to update ui %v", http.StatusNotFound)
-		return
-	}
-	err = tmpl.Execute(w, post)
-	if err != nil {
-		fmt.Println("failed to execute template: %v", err)
-	}
+	h.RenderTemplate(w, "home", post)
 }
