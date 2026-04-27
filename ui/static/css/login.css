@@ -1,514 +1,178 @@
+
+/* CSS Variables for easy maintenance */
+:root {
+    --bg-color: #0d1117;
+    --card-bg: #161b22;
+    --input-bg: #0d1117;
+    --input-border: #30363d;
+    --text-primary: #ffffff;
+    --text-secondary: #8b949e;
+    --gradient-start: #d44292;
+    --gradient-end: #9155fd;
+}
+
+/* Reset & Base Styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #1b1d1e;
-    min-height: 100vh;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    min-height: 100vh;
     padding: 20px;
-    line-height: 1.6;
 }
 
-.login-container {
-    width: 100%;
-    max-width: 420px;
-}
-
+/* Main Card */
 .login-card {
-    background: #1b1d1e;
-    border-radius: 30px;
+    background-color: var(--card-bg);
+    width: 100%;
+    max-width: 440px;
     padding: 50px 40px;
-    box-shadow: 
-        20px 20px 60px #121415,
-        -20px -20px 60px #242627;
-    position: relative;
-    transition: all 0.3s ease;
-}
-
-.login-card:hover {
-    transform: translateY(-5px);
-}
-
-.login-header {
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     text-align: center;
+}
+
+/* Header */
+.brand {
+    background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 24px;
+    letter-spacing: -0.5px;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
     margin-bottom: 40px;
 }
 
-.neu-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 24px;
-    background: #1b1d1e;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 
-        8px 8px 20px #121415,
-        -8px -8px 20px #242627,
-        inset 0 0 0 #121415,
-        inset 0 0 0 #242627;
-    transition: all 0.3s ease;
+/* Form */
+form {
+    text-align: left;
 }
 
-.neu-icon:hover {
-    box-shadow: 
-        4px 4px 10px #121415,
-        -4px -4px 10px #242627,
-        inset 4px 4px 10px #121415,
-        inset -4px -4px 10px #242627;
+.input-group {
+    margin-bottom: 24px;
 }
 
-.icon-inner {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #e0e0e0;
-}
-
-.icon-inner svg {
-    width: 100%;
-    height: 100%;
-}
-
-.login-header h2 {
-    color: #ffffff;
-    font-size: 2rem;
+label {
+    display: block;
+    font-size: 0.9rem;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    color: var(--text-primary);
 }
 
-.login-header p {
-    color: #9499b7;
-    font-size: 15px;
-    font-weight: 400;
-}
-
-.form-group {
-    margin-bottom: 28px;
-    position: relative;
-}
-
-.neu-input {
-    position: relative;
-    background: #1b1d1e;
-    border-radius: 15px;
-    box-shadow: 
-        inset 8px 8px 16px #121415,
-        inset -8px -8px 16px #242627;
-    transition: all 0.3s ease;
-}
-
-.neu-input:focus-within {
-    box-shadow: 
-        inset 4px 4px 8px #121415,
-        inset -4px -4px 8px #242627;
-}
-
-.neu-input input {
+input {
     width: 100%;
-    background: transparent;
-    border: none;
-    padding: 20px 24px;
-    padding-left: 55px;
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 500;
+    padding: 14px 18px;
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
     outline: none;
-    transition: all 0.3s ease;
 }
 
-.neu-input input::placeholder {
-    color: transparent;
+input::placeholder {
+    color: #484f58;
 }
 
-.neu-input label {
-    position: absolute;
-    left: 55px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #9499b7;
-    font-size: 16px;
-    font-weight: 400;
-    pointer-events: none;
-    transition: all 0.3s ease;
+input:focus {
+    border-color: var(--gradient-end);
+    box-shadow: 0 0 0 2px rgba(145, 85, 253, 0.2);
 }
 
-.neu-input input:focus + label,
-.neu-input input:not(:placeholder-shown) + label {
-    top: 8px;
-    font-size: 12px;
-    color: #00c896;
+/* Gradient Button */
+.btn-submit {
+    width: 100%;
+    padding: 16px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+.btn-submit:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn-submit:active {
     transform: translateY(0);
 }
 
-.input-icon {
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    color: #9499b7;
-    transition: all 0.3s ease;
+/* Footer */
+.footer {
+    margin-top: 32px;
 }
 
-.input-icon svg {
-    width: 100%;
-    height: 100%;
+.signup-text {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 24px;
 }
 
-.neu-input:focus-within .input-icon {
-    color: #00c896;
-}
-
-/* Password Toggle */
-.password-group {
-    padding-right: 50px;
-}
-
-.neu-toggle {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: #1b1d1e;
-    border: none;
-    width: 35px;
-    height: 35px;
-    border-radius: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #9499b7;
-    box-shadow: 
-        4px 4px 10px #121415,
-        -4px -4px 10px #242627;
-    transition: all 0.3s ease;
-}
-
-.neu-toggle:hover {
-    color: #ffffff;
-}
-
-.neu-toggle:active {
-    box-shadow: 
-        inset 2px 2px 5px #121415,
-        inset -2px -2px 5px #242627;
-}
-
-.neu-toggle svg {
-    width: 18px;
-    height: 18px;
-}
-
-.eye-closed {
-    display: none;
-}
-
-.neu-toggle.show-password .eye-open {
-    display: none;
-}
-
-.neu-toggle.show-password .eye-closed {
-    display: block;
-}
-
-/* Form Options */
-.form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 35px;
-    flex-wrap: wrap;
-    gap: 16px;
-}
-
-.remember-wrapper {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-
-.remember-wrapper input[type="checkbox"] {
-    display: none;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    user-select: none;
-    color: #6c7293;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.neu-checkbox {
-    width: 22px;
-    height: 22px;
-    background: #1b1d1e;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 
-        3px 3px 8px #121415,
-        -3px -3px 8px #242627;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.remember-wrapper input[type="checkbox"]:checked + .checkbox-label .neu-checkbox {
-    box-shadow: 
-        inset 2px 2px 5px #121415,
-        inset -2px -2px 5px #242627;
-}
-
-.neu-checkbox svg {
-    width: 14px;
-    height: 14px;
-    color: #00c896;
-    opacity: 0;
-    transform: scale(0);
-    transition: all 0.3s ease;
-}
-
-.remember-wrapper input[type="checkbox"]:checked + .checkbox-label .neu-checkbox svg {
-    opacity: 1;
-    transform: scale(1);
-}
-
-.forgot-link {
-    color: #6c7293;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    transition: color 0.3s ease;
-}
-
-.forgot-link:hover {
-    color: #3d4468;
-}
-
-/* Neumorphic Button */
-.neu-button {
-    width: 100%;
-    background: #e0e5ec;
-    border: none;
-    border-radius: 15px;
-    padding: 18px 32px;
-    color: #3d4468;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    position: relative;
-    margin-bottom: 30px;
-    box-shadow: 
-        8px 8px 20px #bec3cf,
-        -8px -8px 20px #ffffff;
-    transition: all 0.3s ease;
-    overflow: hidden;
-}
-
-.neu-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.5s ease;
-}
-
-.neu-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 
-        12px 12px 30px #121415,
-        -12px -12px 30px #242627;
-}
-
-.neu-button:hover::before {
-    left: 100%;
-}
-
-.neu-button:active {
-    transform: translateY(0);
-    box-shadow: 
-        inset 4px 4px 10px #121415,
-        inset -4px -4px 10px #242627;
-}
-
-.btn-text {
-    position: relative;
-    z-index: 1;
-    transition: opacity 0.3s ease;
-}
-
-.btn-loader {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.neu-spinner {
-    width: 20px;
-    height: 20px;
-    border: 3px solid #121415;
-    border-top: 3px solid #00c896;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.neu-button.loading .btn-text {
-    opacity: 0;
-}
-
-.neu-button.loading .btn-loader {
-    opacity: 1;
-}
-
-/* Divider */
-.divider {
-    display: flex;
-    align-items: center;
-    margin: 30px 0;
-    gap: 16px;
-}
-
-.divider-line {
-    flex: 1;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #242627, transparent);
-}
-
-.divider span {
-    color: #9499b7;
-    font-size: 13px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* Signup Link */
 .signup-link {
-    text-align: center;
-}
-
-.signup-link p {
-    color: #9499b7;
-    font-size: 14px;
-}
-
-.signup-link a {
-    color: #6c7293;
+    color: var(--gradient-start);
     text-decoration: none;
     font-weight: 600;
-    transition: color 0.3s ease;
 }
 
-.signup-link a:hover {
-    color: #ffffff;
+.signup-link:hover {
+    text-decoration: underline;
 }
 
-/* Error States */
-.error-message {
-    color: #ff3b5c;
-    font-size: 12px;
-    font-weight: 500;
-    margin-top: 8px;
-    margin-left: 20px;
-    opacity: 0;
-    transform: translateY(-10px);
-    transition: all 0.3s ease;
+.back-home {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--text-secondary);
+    transition: color 0.2s, border-color 0.2s;
 }
 
-.error-message.show {
-    opacity: 1;
-    transform: translateY(0);
+.back-home:hover {
+    color: white;
+    border-color: white;
 }
 
-.form-group.error .neu-input {
-    box-shadow: 
-        inset 8px 8px 16px #121415,
-        inset -8px -8px 16px #242627,
-        0 0 0 2px #ff3b5c;
-}
-
-/* Success Message */
-.success-message {
-    display: none;
-    text-align: center;
-    padding: 40px 20px;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.5s ease;
-}
-
-.success-message.show {
-    display: block;
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.success-message .neu-icon {
-    background: #1b1d1e;
-    color: #00c896;
-    margin-bottom: 20px;
-}
-
-.success-message p {
-    color: #9499b7;
-    font-size: 14px;
-}
-
-/* Mobile Responsive */
+/* Mobile Adjustments */
 @media (max-width: 480px) {
-    body {
-        padding: 16px;
-    }
-    
     .login-card {
-        padding: 35px 25px;
-        border-radius: 20px;
-    }
-    
-    .login-header h2 {
-        font-size: 1.75rem;
-    }
-    
-    .neu-input input {
-        padding: 18px 20px;
-        padding-left: 50px;
-    }
-    
-    .neu-input label {
-        left: 50px;
-    }
-    
-    .form-options {
+        padding: 40px 24px;
+        border-radius: 0;
+        height: 100vh;
+        display: flex;
         flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
+        justify-content: center;
+    }
+    body {
+        padding: 0;
     }
 }
