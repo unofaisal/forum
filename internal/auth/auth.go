@@ -145,7 +145,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	sessionID := u4.String()
 
 	_, err = h.DB.Exec(`
-		INSERT INTO sessions (id, user_id, expires_at)
+		INSERT INTO sessions (sessionId, user_id, expires_at)
 		VALUES (?, ?, datetime('now', '+1 hour'))
 	`, sessionID, user_id)
 
@@ -188,9 +188,11 @@ func (h *AuthHandler) GetUserIDFromSession(r *http.Request) (int, bool) {
 	err = h.DB.QueryRow(`
 		SELECT user_id, expires_at 
 		FROM sessions 
-		WHERE id = ?
+		WHERE sessionId = ?
 	`, cookie.Value).Scan(&userID, &expires)
+
 	if err != nil {
+		fmt.Println("error fetching user id from session: ", err.Error())
 		return 0, false
 	}
 	fmt.Println("user id from session: ", userID)
