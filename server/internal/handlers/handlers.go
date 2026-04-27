@@ -82,13 +82,22 @@ WHERE c.post_id = ?`
 		fmt.Println(post)
 	}
 
-	tmpl, err := template.ParseFiles("ui/templates/home.html")
+	renderTemplate(w, "home", post)
+}
+
+func renderTemplate(w http.ResponseWriter, tmplName string, data interface{}) {
+	tmpl, err := template.ParseFiles("ui/templates/base.html", "ui/templates/"+tmplName+".html")
 	if err != nil {
-		fmt.Println("post error: %v", err)
-		http.Error(w, "failed to update ui %v", http.StatusNotFound)
+		log.Printf("Error parsing templates: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	tmpl.Execute(w, post)
+
+	err = tmpl.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		log.Printf("Error executing template: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
 }
 
 func ping(w http.ResponseWriter, r *http.Request) {
@@ -112,21 +121,16 @@ func ping(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
-
 func handleLoginPage(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "ui/templates/login.html")
+	renderTemplate(w, "login", nil)
 }
 
 func handleRegisterHtml(w http.ResponseWriter, r *http.Request) {
-	// fs := http.FileServer(http.Dir("./ui/templates/register.html"))
-	http.ServeFile(w, r, "ui/templates/signup.html")
-	// http.Handle("registering", fs)
-	// fs.ServeHTTP(w,r)
+	renderTemplate(w, "signup", nil)
 }
 
 func handleHomePage(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "/ui/templates/home.html")
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func getUsers(w http.ResponseWriter, r *http.Request) {
@@ -148,7 +152,7 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlePostPage(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "ui/templates/post.html")
+	renderTemplate(w, "post", nil)
 }
 
 func sendPost(w http.ResponseWriter, r *http.Request) {
