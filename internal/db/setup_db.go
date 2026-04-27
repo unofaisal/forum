@@ -5,9 +5,8 @@ import (
 	"fmt"
 )
 
-
 func Setup(database *sql.DB) {
-	
+
 	schema := `
 	CREATE TABLE IF NOT EXISTS users(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,6 +47,29 @@ func Setup(database *sql.DB) {
 		`
 	_, err = database.Exec(schemaPost)
 
+	schemaCategory := `
+	CREATE TABLE IF NOT EXISTS categories(
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL UNIQUE
+	)`
+	database.Exec(schemaCategory)
+
+	schemaPostCategories := `
+	CREATE TABLE IF NOT EXISTS post_categories(
+		post_id INTEGER,
+		category_id INTEGER,
+		PRIMARY KEY (post_id, category_id),
+		FOREIGN KEY(post_id) REFERENCES posts(id) ON DELETE CASCADE,
+		FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE CASCADE
+	)`
+	database.Exec(schemaPostCategories)
+
+	categories := []string{"Technology", "Gaming", "Science", "Music"}
+	for _, cat := range categories {
+		database.Exec("INSERT OR IGNORE INTO categories (name) VALUES (?)", cat)
+	}
+	fmt.Println("categories tables created and seeded successfully")
+
 	schemaLikes := `
 	CREATE TABLE IF NOT EXISTS reactions(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,9 +82,8 @@ func Setup(database *sql.DB) {
 	_, err = database.Exec(schemaLikes)
 
 	if err != nil {
-		fmt.Errorf("failed to create tables: %v", err)
+		fmt.Printf("failed to create tables: %v\n", err)
 		return
-	} else {
-		fmt.Println("posts table created successfully")
 	}
+
 }
