@@ -78,6 +78,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "data saved successfully into database", http.StatusOK)
 	}
 
+	http.Redirect(w,r, "/", http.StatusSeeOther)
+
 	// _, err := w.Write(output.Bytes())
 	fmt.Println("this is the errror: ", confPassError)
 
