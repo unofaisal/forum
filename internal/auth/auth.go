@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gofrs/uuid/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -109,7 +110,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	schema := `
-	SELECT username, password_hash FROM users WHERE email = ?
+	SELECT username, id, password_hash FROM users WHERE email = ?
 	`
 
 	row := h.DB.QueryRow(schema, email)
@@ -124,14 +125,38 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 	var dbemail, dbpassword string
+	var user_id int
 
-	row.Scan(&dbemail, &dbpassword)
+	row.Scan(&dbemail, &user_id, &dbpassword)
 
 	err := bcrypt.CompareHashAndPassword([]byte(dbpassword), []byte(password))
 	if err != nil {
 		http.Error(w, "user unknown try again", http.StatusForbidden)
 		return
 	}
+	u4, err := uuid.NewV4()
+	if err != nil {
+		http.Error(w, "server error", http.StatusInternalServerError)
+		return
+	}
+
+	sessionID := u4.String()
+
+	_, err = db.Exec(`
+		INSERT INTO sessions (id, user_id, expires_at)
+		VALUES (?, ?, datetime('now', '+1 hour'))
+	`, sessionID, user_id)
+
+	cookie := &http.Cookie{
+		Name:     "session",
+		Value:    sessionID,
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   3600,
+	}
+	http.SetCookie(w, cookie)
+
+	fmt.Fprintf(w, "Welcome back %v", dbemail)
 	fmt.Println(dbpassword)
 
 	// if dbpassword != password {
@@ -147,4 +172,25 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "Welcome back %v", dbemail)
 	// }
+}
+
+func GetUserIDFromSession(r *http.Request) (int, bool) {
+	cookie, err := r.Cookie("session_id")
+	if err != nil {
+		return 0, false
+	}
+
+	var userID int
+	var expires string
+
+	err = db.QueryRow(`
+		SELECT user_id, expires_at 
+		FROM sessions 
+		WHERE id = ?
+	`, cookie.Value).Scan(&userID, &expires)
+	if err != nil {
+		return 0, false
+	}
+
+	return userID, true
 }
