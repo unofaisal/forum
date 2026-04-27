@@ -78,7 +78,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "data saved successfully into database", http.StatusOK)
 	}
 
-	http.Redirect(w,r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 
 	// _, err := w.Write(output.Bytes())
 	fmt.Println("this is the errror: ", confPassError)
@@ -177,7 +177,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) GetUserIDFromSession(r *http.Request) (int, bool) {
-	cookie, err := r.Cookie("session_id")
+	cookie, err := r.Cookie("session")
 	if err != nil {
 		return 0, false
 	}
@@ -193,6 +193,7 @@ func (h *AuthHandler) GetUserIDFromSession(r *http.Request) (int, bool) {
 	if err != nil {
 		return 0, false
 	}
+	fmt.Println("user id from session: ", userID)
 
 	return userID, true
 }
