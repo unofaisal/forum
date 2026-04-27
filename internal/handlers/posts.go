@@ -21,12 +21,23 @@ func (h *Handler) SendPost(w http.ResponseWriter, r *http.Request) {
 
 	schema := `INSERT INTO posts (title, content, user_id) VALUES (?, ?, ?)`
 
-	_, err := h.DB.Exec(schema, postTitle, postContent, user_id)
+	result, err := h.DB.Exec(schema, postTitle, postContent, user_id)
 
 	if err != nil {
 		fmt.Printf("failed to add post into the database: %v", err)
 	} else {
-		// fmt.Fprintf(w, "successfuly added post into the database")
+		postID, _ := result.LastInsertId()
+		r.ParseForm()
+		selectedCategories := r.Form["category"]
+
+		for _, catName := range selectedCategories {
+			var catID int
+			err := h.DB.QueryRow("SELECT id FROM categories WHERE name = ?", catName).Scan(&catID)
+			if err == nil {
+				h.DB.Exec("INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)", postID, catID)
+			}
+		}
+
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }
