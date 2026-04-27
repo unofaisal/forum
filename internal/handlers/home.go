@@ -55,6 +55,23 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			continue
 		}
+
+		categoryQuery := `
+			SELECT c.name FROM categories c
+			JOIN post_categories pc ON c.id = pc.category_id
+			WHERE pc.post_id = ?`
+		
+		catRows, err := h.DB.Query(categoryQuery, p.ID)
+		if err == nil {
+			for catRows.Next() {
+				var catName string
+				if err := catRows.Scan(&catName); err == nil {
+					p.Categories = append(p.Categories, catName)
+				}
+			}
+			catRows.Close()
+		}
+
 		countCommentQuery := `SELECT COUNT(*) FROM comments WHERE post_id = ?`
 
 		err = h.DB.QueryRow(countCommentQuery, p.ID).Scan(&p.CommentCount)
