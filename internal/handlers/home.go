@@ -1,10 +1,11 @@
 package handlers
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
-	"database/sql"
 	"net/http"
+
 	"forum/internal/handlers/models"
 )
 
@@ -74,7 +75,7 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 			SELECT c.name FROM categories c
 			JOIN post_categories pc ON c.id = pc.category_id
 			WHERE pc.post_id = ?`
-		
+
 		catRows, err := h.DB.Query(categoryQuery, p.ID)
 		if err == nil {
 			for catRows.Next() {
@@ -137,6 +138,21 @@ WHERE c.post_id = ?`
 	}
 
 	fmt.Printf("Rendering %d posts\n", len(post))
+	userID, ok := h.Auth.GetUserIDFromSession(r)
 
-	h.RenderTemplate(w, "home", post)
+	var username string
+	if ok {
+		err := h.DB.QueryRow("SELECT username FROM users WHERE id = ?", userID).Scan(&username)
+		if err != nil {
+			username = ""
+		}
+	}
+
+	data := models.HomePageData{
+		Posts:      post,
+		IsLoggedIn: ok,
+		Username:   username,
+	}
+
+	h.RenderTemplate(w, "home", data)
 }
