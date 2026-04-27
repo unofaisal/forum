@@ -6,6 +6,7 @@ import (
 )
 
 
+<<<<<<< HEAD:internal/db/setup_db.go
 func Setup(database *sql.DB) {
 	
 	schema := `
@@ -19,6 +20,8 @@ func Setup(database *sql.DB) {
 		`
 	_, err := database.Exec(schema)
 
+=======
+>>>>>>> a2cf5b4 (modularise code):setup_db.go
 	schemaComment := `
 	CREATE TABLE IF NOT exists comments(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,7 +31,11 @@ func Setup(database *sql.DB) {
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 			)`
 
+<<<<<<< HEAD:internal/db/setup_db.go
 	_, err = database.Exec(schemaComment)
+=======
+	_, err = db.Exec(schemaComment)
+>>>>>>> a2cf5b4 (modularise code):setup_db.go
 
 	if err != nil {
 		fmt.Errorf("failed to create tables: %v", err)
@@ -57,7 +64,11 @@ func Setup(database *sql.DB) {
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		UNIQUE(user_id, post_id)
 		)`
+<<<<<<< HEAD:internal/db/setup_db.go
 	_, err = database.Exec(schemaLikes)
+=======
+	_, err = db.Exec(schemaLikes)
+>>>>>>> a2cf5b4 (modularise code):setup_db.go
 
 	if err != nil {
 		fmt.Errorf("failed to create tables: %v", err)
