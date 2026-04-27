@@ -1,182 +1,123 @@
-<!DOCTYPE html>
+{{template "base" .}}
 
-<html lang="en">
-    <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forum</title>
-    <link rel="stylesheet" href="../static/css/base.css">
-    <link rel="stylesheet" href="../static/css/home.css">
-    </head>
-    <body>
-        <header class="header">
-            <a href="#" class="logo">Forum</a>
-        <div class="header-actions">
-            <a href="/post"><button class="btn btn-primary">+ New Post</button></a>
-           <a href="/log"><button class="btn btn-outline">Log In</button></a>
-           <a href="/registering"><button class="btn btn-outline">Register</button></a>
+{{define "title"}}Forum - Home{{end}}
+
+{{define "styles"}}
+<link rel="stylesheet" href="/static/css/home.css">
+{{end}}
+
+{{define "content"}}
+<aside class="sidebar">
+    <div class="sidebar-section">
+        <h3 class="sidebar-title">Feeds</h3>
+        <nav class="nav-list">
+            <a href="/" class="nav-item active">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                Public Feed
+            </a>
+            <a href="/getposts" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                My Posts
+            </a>
+            <a href="#" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                Liked Posts
+            </a>
+        </nav>
+    </div>
+    <div class="sidebar-section">
+        <h3 class="sidebar-title">Categories</h3>
+        <div class="filter-tags">
+            <span class="pill">Technology</span>
+            <span class="pill">Gaming</span>
+            <span class="pill">Science</span>
+            <span class="pill">Music</span>
         </div>
-        </header>
+    </div>
+</aside>
 
-        <div class="main-container">
-        <aside class="sidebar">
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">Feeds</h3>
-                <nav class="nav-list">
-                    <a href="#" class="nav-item active">Public Feed</a>
-                    <a href="/getposts" class="nav-item">My Posts</a>
-                    <a href="#" class="nav-item">Liked Posts</a>
-                </nav>
-            </div>
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">Filter by Category</h3>
-                <div class="filter-tags">
-                    <span class="pill">Technology</span>
-                    <span class="pill">Gaming</span>
-                    <span class="pill">Science</span>
-                    <span class="pill">Music</span>
-                </div>
-            </div>
-        </aside>
-
-        <main class="content-feed">
-            <div class="feed-header">
-            <h2>Recent Conversations</h2>
-            <div class="search-bar">
-                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <input type="text" class="search-input" placeholder="Search posts,topics or users...">
-                </div>
-            </div>
-            <div id="posts-container">
-                <!-- Iterating through posts provided by Go backend -->
-                {{range .}}
-                <div class="post-card">
-                    <div class="post-header">
-                        <div class="user-meta">
-                            <div class="avatar" style="background: var(--primary-purple)">U</div>
-                            <div>
-                                <div class="author-name">Anonymous</div>
-                                <div class="post-timestamp">Just now</div>
-                            </div>
-                        </div>
-                        <span class="tag-dark">General</span>
-                    </div>
-
-                    <h3 class="post-title">{{.Title}}</h3>
-                    <p class="post-body">{{.Content}}</p>
-
-                    <div class="post-footer">
-                        <div class="interaction-group">
-                            <form action="/like" method="POST">
-                                <input type="hidden" name="post_id" value="{{.ID}}">
-                                <button name="value" value="1" class="action-btn like">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"></path></svg>
-                                    <span class="count">{{.LikeCount}}</span>
-                                </button>
-                                <button name="value" value="-1" class="action-btn dislike">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15V19a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zM17 2h3a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-3"></path></svg>
-                                    <span class="count">{{.DislikeCount}}</span>
-                                </button>
-                            </form>
-                        </div>
-                        <div class="interaction-group">
-                            <button class="action-btn comment" onclick="toggleComments(this)">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                                <span>{{.CommentCount}} Comments</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Comment Section (Hidden by default) -->
-                    <div class="comment-section">
-                        <div class="comment-input-wrapper">
-                            <form action="/comment" method="POST">
-                            <textarea  placeholder="Add to the conversation..." class="comment-field" name="content"></textarea>
-                            <input type="text" name="post_id" value="{{.ID}}">
-                            <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
-                            </form>
-                        </div>
-                        <div class="comments-display-list">
-                            <!-- Example Comment Item -->
-                            <div class="comment-item">
-                                {{range .Comments}}
-                                <div class="comment-header">
-                                    <div class="avatar-sm">{{.Initial}}</div>
-                                    <span class="commenter-name">{{.Username}}</span>
-                                    <span class="comment-time">2 hours ago</span>
-                                </div>
-                                <p class="comment-content">
-                                    {{.Comment}}
-                                </p>
-                                {{end}}
-                                
-                            </div>
-                            <!-- End Example Comment Item -->
-                        </div>
-                    </div>
-                </div>
-                {{end}}
-            </div>
-        </main>
+<main class="feed-container">
+    <div class="feed-header">
+        <h2>Recent Conversations</h2>
+        <div class="search-bar">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" class="search-input" placeholder="Search discussions...">
+        </div>
     </div>
 
-     <!-- New Post Modal -->
-    <div id="modal-overlay" onclick="closeModal(event)">
-        <div class="modal" onclick="event.stopPropagation()">
-            <h3 style="margin-bottom: 20px">Create New Post</h3>
-            <input type="text" id="post-title-input" placeholder="Thread Title">
-            <textarea id="post-body-input" placeholder="What's on your mind?"></textarea>
-            <input type="text" id="post-category-input" placeholder="Category (e.g. Technology)">
-            <div style="display: flex; gap: 10px; justify-content: flex-end">
-                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="submitPost()">Publish Post</button>
+    <div id="posts-container">
+        {{range .}}
+        <div class="card post-card fade-in">
+            <div class="post-header">
+                <div class="user-meta">
+                    <div class="avatar">U</div>
+                    <div>
+                        <div class="author-name">Anonymous</div>
+                        <div class="post-timestamp">Recently</div>
+                    </div>
+                </div>
+                <span class="pill">General</span>
+            </div>
+
+            <h3 class="post-title">{{.Title}}</h3>
+            <p class="post-body">{{.Content}}</p>
+
+            <div class="post-footer">
+                <div class="interaction-group">
+                    <form action="/like" method="POST" style="display: flex; gap: 8px;">
+                        <input type="hidden" name="post_id" value="{{.ID}}">
+                        <button name="value" value="1" class="btn action-btn like">
+                            👍 <span>{{.LikeCount}}</span>
+                        </button>
+                        <button name="value" value="-1" class="btn action-btn dislike">
+                            👎 <span>{{.DislikeCount}}</span>
+                        </button>
+                    </form>
+                </div>
+                <div class="interaction-group">
+                    <button class="btn action-btn comment" onclick="toggleComments(this)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <span>{{.CommentCount}}</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Comment Section -->
+            <div class="comment-section">
+                <div class="comment-input-wrapper">
+                    <form action="/comment" method="POST">
+                        <textarea name="content" placeholder="Add to the conversation..." class="comment-field"></textarea>
+                        <input type="hidden" name="post_id" value="{{.ID}}">
+                        <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
+                    </form>
+                </div>
+                <div class="comments-list">
+                    {{range .Comments}}
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="avatar-sm" style="width: 24px; height: 24px; border-radius: 50%; background: var(--primary-purple); display: flex; align-items: center; justify-content: center; font-size: 10px; margin-right: 8px;">{{.Initial}}</div>
+                            <span class="author-name" style="font-size: 0.85rem;">{{.Username}}</span>
+                        </div>
+                        <p style="font-size: 0.9rem; margin-top: 8px; color: var(--text-muted);">{{.Comment}}</p>
+                    </div>
+                    {{end}}
+                </div>
             </div>
         </div>
-    </div>   
+        {{end}}
+    </div>
+</main>
+{{end}}
 
-    <script>
-        function toggleComments(btn) {
-            const card = btn.closest('.post-card');
-            const commentSection = card.querySelector('.comment-section');
-            commentSection.classList.toggle('active');
-        }
-
-        function handleLike(btn) {
-            const dislikeBtn = btn.parentNode.querySelector('.dislike');
-            const countSpan = btn.querySelector('.count');
-            let count = parseInt(countSpan.innerText);
-
-            if (btn.classList.toggle('active')) {
-                countSpan.innerText = count + 1;
-                if (dislikeBtn.classList.contains('active')) {
-                    handleDislike(dislikeBtn);
-                }
-            } else {
-                countSpan.innerText = count - 1;
-            }
-        }
-
-        function handleDislike(btn) {
-            const likeBtn = btn.parentNode.querySelector('.like');
-            const countSpan = btn.querySelector('.count');
-            let count = parseInt(countSpan.innerText);
-
-            if (btn.classList.toggle('active')) {
-                countSpan.innerText = count + 1;
-                if (likeBtn.classList.contains('active')) {
-                    handleLike(likeBtn);
-                }
-            } else {
-                countSpan.innerText = count - 1;
-            }
-        }
-
-        function closeModal() {
-            document.getElementById('modal-overlay').style.display = 'none';
-        }
-    </script>
-
-    </body>
-</html>        
+{{define "scripts"}}
+<script>
+    function toggleComments(btn) {
+        const card = btn.closest('.post-card');
+        const commentSection = card.querySelector('.comment-section');
+        commentSection.classList.toggle('active');
+    }
+</script>
+{{end}}
