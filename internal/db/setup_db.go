@@ -1,18 +1,25 @@
-package main
+package db
 
 import (
 	"database/sql"
 	"fmt"
 )
 
-func setup() {
-	var err error
-	db, err = sql.Open("sqlite3", "forum.db")
-	if err != nil {
-		fmt.Errorf("failed to open database %v", err)
-	}
 
-		schemaComment := `
+func Setup(database *sql.DB) {
+	
+	schema := `
+	CREATE TABLE IF NOT EXISTS users(
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		username TEXT NOT NULL UNIQUE,
+		password_hash TEXT NOT NULL,
+		email TEXT NOT NULL UNIQUE,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)
+		`
+	_, err := database.Exec(schema)
+
+	schemaComment := `
 	CREATE TABLE IF NOT exists comments(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		comment TEXT NOT NULL,
@@ -21,7 +28,7 @@ func setup() {
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 			)`
 
-	_,err = db.Exec(schemaComment)
+	_, err = database.Exec(schemaComment)
 
 	if err != nil {
 		fmt.Errorf("failed to create tables: %v", err)
@@ -39,9 +46,8 @@ func setup() {
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
 		`
-	_, err = db.Exec(schemaPost)
+	_, err = database.Exec(schemaPost)
 
-	
 	schemaLikes := `
 	CREATE TABLE IF NOT EXISTS reactions(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,13 +57,12 @@ func setup() {
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		UNIQUE(user_id, post_id)
 		)`
-		_, err = db.Exec(schemaLikes)
+	_, err = database.Exec(schemaLikes)
 
-		if err != nil {
-			fmt.Errorf("failed to create tables: %v", err)
-			return
-		} else {
-			fmt.Println("posts table created successfully")
-		}
-
+	if err != nil {
+		fmt.Errorf("failed to create tables: %v", err)
+		return
+	} else {
+		fmt.Println("posts table created successfully")
+	}
 }
