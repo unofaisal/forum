@@ -41,6 +41,8 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 	var row *sql.Rows
 	var err error
 
+
+
 	// 2. Decide which query to run based on whether a filter exists
 	if filterCategory != "" {
 		schemaFilterGet := `
@@ -51,7 +53,13 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 			WHERE c.name = ?`
 		row, err = h.DB.Query(schemaFilterGet, filterCategory)
 	} else {
-		schemaPostGet := `SELECT id, title, content FROM posts`
+		schemaPostGet := `SELECT 
+    p.id, 
+    p.title, 
+    p.content, 
+    u.username
+FROM posts p
+LEFT JOIN users u ON p.user_id = u.id`
 		row, err = h.DB.Query(schemaPostGet)
 	}
 
@@ -65,8 +73,9 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 
 	for row.Next() {
 		var p models.Post
+		
 
-		err := row.Scan(&p.ID, &p.Title, &p.Content)
+		err := row.Scan(&p.ID, &p.Title, &p.Content, &p.Username)
 		if err != nil {
 			continue
 		}
@@ -128,8 +137,18 @@ WHERE c.post_id = ?`
 			commentRows.Close()
 		}
 
+		var Initial string
+
+			if len(p.Username) > 0 {
+					Initial = string(p.Username[0])
+				} else {
+					Initial = "?"
+				}
+				fmt.Println(Initial)
+
 		likes, dislikes := h.getLikes(p.ID)
 
+		p.Initial = Initial
 		p.LikeCount = likes
 		p.DislikeCount = dislikes
 
