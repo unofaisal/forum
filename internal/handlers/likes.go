@@ -11,7 +11,11 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	postID, _ := strconv.Atoi(r.FormValue("post_id"))
 	value, _ := strconv.Atoi(r.FormValue("value"))
 
-	userID := 1
+	userID, ok := h.Auth.GetUserIDFromSession(r)
+	if !ok {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
 	var existing int
 	err := h.DB.QueryRow(
 		`SELECT value FROM reactions WHERE user_id = ? AND post_id = ?`,

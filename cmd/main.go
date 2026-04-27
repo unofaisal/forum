@@ -62,7 +62,7 @@ func handlePostPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	database, err := sql.Open("sqlite3", "forum.db")
+	database, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
 		fmt.Errorf("failed to open database %v", err)
 	}
@@ -71,8 +71,8 @@ func main() {
 	db.Setup(database)
 
 	// 3. Create handler with dependency injection
-	h := &handlers.Handler{DB: database}
 	a := &auth.AuthHandler{DB: database}
+	h := &handlers.Handler{DB: database, Auth: a}
 
 	mux := http.NewServeMux()
 	// mux.HandleFunc("/{$}", root)
