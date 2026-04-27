@@ -21,7 +21,6 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 	confPassword := r.FormValue("confirmPassword")
-	confPassError := r.FormValue("confirmPasswordError")
 
 	// userList := params["name"]
 
@@ -41,18 +40,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	schema := `
 	INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)`
 
-	user := "user"
-	// name := "unknown"
-	pass := "unknown"
-	mail := "unknown"
-	// var output bytes.Buffer
-
-	// output.WriteString("Welcome ")
-
-	// if len("unknown") > 0 {
-	user = username
-	pass = password
-	mail = email
+	
 	// name = Firstname
 	// }
 
@@ -67,23 +55,51 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 		// panic(error)
 	}
+result, err := h.DB.Exec(schema, username, string(hashedPassword), email)
+if err != nil {
+    http.Error(w, "failed to save data", http.StatusInternalServerError)
+    return
+}
 
-	_, err := h.DB.Exec(schema, username, string(hashedPassword), email)
+userID, err := result.LastInsertId()
+if err != nil {
+    http.Error(w, "failed to get user id", http.StatusInternalServerError)
+    return
+}
+u4, err := uuid.NewV4()
+if err != nil {
+    http.Error(w, "server error", http.StatusInternalServerError)
+    return
+}
 
-	if err != nil {
-		fmt.Println("DB error: ", err)
-		http.Error(w, "failed to save data into databse username or email already exists", http.StatusInternalServerError)
-		return
-	} else {
-		fmt.Fprintln(w, "data saved successfully into database", http.StatusOK)
-	}
+sessionID := u4.String()
+
+_, err = h.DB.Exec(`
+    INSERT INTO sessions (sessionId, user_id, expires_at)
+    VALUES (?, ?, datetime('now', '+1 hour'))
+`, sessionID, userID)
+
+if err != nil {
+    http.Error(w, "failed to create session", http.StatusInternalServerError)
+    return
+}
+
+cookie := &http.Cookie{
+    Name:     "session",
+    Value:    sessionID,
+    Path:     "/",
+    HttpOnly: true,
+    MaxAge:   3600,
+}
+http.SetCookie(w, cookie)
+
+
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+	return
 
 	// _, err := w.Write(output.Bytes())
-	fmt.Println("this is the errror: ", confPassError)
 
-	fmt.Fprintf(w, "Username: %s\nEmail: %s\nPassword: %s\n", user, mail, pass)
 	// body, diode := io.ReadAll(r.Body)
 
 	// var data UserData
