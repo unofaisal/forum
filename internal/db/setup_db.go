@@ -6,9 +6,8 @@ import (
 	"fmt"
 )
 
-
 func Setup(database *sql.DB) {
-	
+
 	schema := `
 	CREATE TABLE IF NOT EXISTS users(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -49,8 +48,6 @@ func Setup(database *sql.DB) {
 		`
 	_, err = database.Exec(schemaPost)
 
-	_, err = database.Exec(schemaPost)
-
 	schemaLikes := `
 	CREATE TABLE IF NOT EXISTS reactions(
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,9 +66,8 @@ func Setup(database *sql.DB) {
 		fmt.Println("posts table created successfully")
 	}
 	if err != nil {
-		fmt.Errorf("failed to create tables: %v", err)
+		fmt.Printf("failed to create tables: %v\n", err)
 		return
-	} else {
-		fmt.Println("posts table created successfully")
 	}
+
 }
