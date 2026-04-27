@@ -40,7 +40,7 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 
 	row, err := h.DB.Query(schemaPostGet)
 	if err != nil {
-		http.Error(w, "failed to load posts", http.StatusInternalServerError)
+		http.Error(w, "failed to load posts "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -113,7 +113,7 @@ WHERE c.post_id = ?`
 		http.Error(w, "failed to update ui %v", http.StatusNotFound)
 		return
 	}
-	err  = tmpl.Execute(w, post)
+	err = tmpl.Execute(w, post)
 	if err != nil {
 		fmt.Println("failed to execute template: %v", err)
 	}
