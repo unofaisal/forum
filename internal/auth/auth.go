@@ -142,7 +142,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	sessionID := u4.String()
 
-	_, err = db.Exec(`
+	_, err = h.DB.Exec(`
 		INSERT INTO sessions (id, user_id, expires_at)
 		VALUES (?, ?, datetime('now', '+1 hour'))
 	`, sessionID, user_id)
@@ -174,7 +174,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// }
 }
 
-func GetUserIDFromSession(r *http.Request) (int, bool) {
+func (h *AuthHandler) GetUserIDFromSession(r *http.Request) (int, bool) {
 	cookie, err := r.Cookie("session_id")
 	if err != nil {
 		return 0, false
@@ -183,7 +183,7 @@ func GetUserIDFromSession(r *http.Request) (int, bool) {
 	var userID int
 	var expires string
 
-	err = db.QueryRow(`
+	err = h.DB.QueryRow(`
 		SELECT user_id, expires_at 
 		FROM sessions 
 		WHERE id = ?

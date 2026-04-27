@@ -5,15 +5,13 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-
-	"forum/internal/auth"
 )
 
 func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	postID, _ := strconv.Atoi(r.FormValue("post_id"))
 	value, _ := strconv.Atoi(r.FormValue("value"))
 
-	userID, ok := auth.GetUserIDFromSession(r)
+	userID, ok := h.Auth.GetUserIDFromSession(r)
 	if !ok {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
