@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forum - Login</title>
+    <link rel="stylesheet" href="../static/css/login.css">
 </head>
 <body>
 
@@ -13,15 +14,15 @@
         <h1>Welcome Back</h1>
         <p class="subtitle">Log in to join the conversation</p>
 
-        <form onsubmit="event.preventDefault();">
+        <form method="POST" action="/login">
             <div class="input-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" placeholder="you@example.com" required>
+                <input name="email" type="email" id="email" placeholder="you@example.com" required>
             </div>
 
             <div class="input-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" placeholder="••••••••" required>
+                <input name="password" type="password" id="password" placeholder="••••••••" required>
             </div>
 
             <button type="submit" class="btn-submit">Sign In</button>
