@@ -4,6 +4,24 @@
 
 {{define "styles"}}
 <link rel="stylesheet" href="/static/css/home.css">
+<style>
+    .post-body.collapsed {
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* Number of lines to show */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .read-more-btn {
+        background: none;
+        border: none;
+        color: var(--primary-purple);
+        cursor: pointer;
+        padding: 0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 8px;
+    }
+</style>
 {{end}}
 
 {{define "content"}}
@@ -68,7 +86,10 @@
             </div>
 
             <h3 class="post-title">{{.Title}}</h3>
-            <p class="post-body">{{.Content}}</p>
+            <div class="post-content-container">
+                <p class="post-body collapsed">{{.Content}}</p>
+                <button class="read-more-btn" style="display: none;" onclick="toggleReadMore(this)">Read More</button>
+            </div>
 
             <div class="post-footer">
                 <div class="interaction-group">
@@ -124,5 +145,24 @@
         const commentSection = card.querySelector('.comment-section');
         commentSection.classList.toggle('active');
     }
+
+    function toggleReadMore(btn) {
+        const postBody = btn.previousElementSibling;
+        const isCollapsed = postBody.classList.toggle('collapsed');
+        btn.textContent = isCollapsed ? 'Read More' : 'Show Less';
+    }
+
+    // Initialize "Read More" buttons on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.post-body').forEach(body => {
+            // Check if content is actually overflowing
+            if (body.scrollHeight > body.clientHeight) {
+                const btn = body.nextElementSibling;
+                if (btn && btn.classList.contains('read-more-btn')) {
+                    btn.style.display = 'block';
+                }
+            }
+        });
+    });
 </script>
 {{end}}
