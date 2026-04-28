@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"database/sql"
 	"fmt"
 	"html/template"
 	"log"
-	"database/sql"
 	"net/http"
+
 	"forum/internal/handlers/models"
 )
 
@@ -75,7 +76,7 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 			SELECT c.name FROM categories c
 			JOIN post_categories pc ON c.id = pc.category_id
 			WHERE pc.post_id = ?`
-		
+
 		catRows, err := h.DB.Query(categoryQuery, p.ID)
 		if err == nil {
 			for catRows.Next() {
@@ -141,12 +142,11 @@ WHERE c.post_id = ?`
 
 	tmpl, err := template.ParseFiles("ui/templates/home.html")
 	if err != nil {
-		fmt.Println("post error: %v", err)
 		http.Error(w, "failed to update ui %v", http.StatusNotFound)
 		return
 	}
 	err = tmpl.Execute(w, post)
 	if err != nil {
-		fmt.Println("failed to execute template: %v", err)
+		http.Error(w, "failed to update ui %v", http.StatusNotFound)
 	}
 }

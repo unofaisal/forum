@@ -2,11 +2,14 @@ package handlers
 
 import (
 	"database/sql"
-
-	"forum/internal/auth"
+	"net/http"
 )
+
+type AuthService interface {
+	GetUserIDFromSession(r *http.Request) (int, bool)
+}
 
 type Handler struct {
 	DB   *sql.DB
-	Auth *auth.AuthHandler
+	Auth AuthService
 }
