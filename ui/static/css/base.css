@@ -7,7 +7,7 @@
     
     --primary-purple: #c56cf0;
     --primary-purple-hover: #d28df4;
-    --primary-gradient: linear-gradient(135deg, #bd34fe 0%, #7d40ff 100%);
+    --primary-gradient: linear-gradient(to right, #e85d9e, var(--primary-purple));
     
     --text-main: #ffffff;
     --text-muted: #8b949e;
@@ -96,7 +96,7 @@ ul {
 }
 
 .btn-primary {
-    background: var(--primary-gradient);
+    background: var(--primary-purple);
     color: white;
 }
 
