@@ -5,12 +5,6 @@
 {{define "styles"}}
 <link rel="stylesheet" href="/static/css/home.css">
 <style>
-    .post-body.collapsed {
-        display: -webkit-box;
-        -webkit-line-clamp: 3; /* Number of lines to show */
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
     .read-more-btn {
         background: none;
         border: none;
@@ -147,16 +141,21 @@
     }
 
     function toggleReadMore(btn) {
-        const postBody = btn.previousElementSibling;
-        const isCollapsed = postBody.classList.toggle('collapsed');
-        btn.textContent = isCollapsed ? 'Read More' : 'Show Less';
-    }
+    const postBody = btn.previousElementSibling;
+
+    const isExpanded = postBody.classList.contains('expanded');
+
+    postBody.classList.toggle('expanded');
+    console.log(postBody.classList)
+
+    btn.textContent = isExpanded ? 'Read More' : 'Show less';
+}
 
     // Initialize "Read More" buttons on page load
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.post-body').forEach(body => {
             // Check if content is actually overflowing
-            if (body.scrollHeight > body.clientHeight) {
+            if (body.scrollHeight > body.clientHeight + 1) {
                 const btn = body.nextElementSibling;
                 if (btn && btn.classList.contains('read-more-btn')) {
                     btn.style.display = 'block';
