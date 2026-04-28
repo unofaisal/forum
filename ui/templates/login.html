@@ -1,38 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forum - Login</title>
-    <link rel="stylesheet" href="../static/css/login.css">
-</head>
-<body>
+{{template "base" .}}
 
-    <div class="login-card">
-        <div class="brand">Forum</div>
-        
-        <h1>Welcome Back</h1>
-        <p class="subtitle">Log in to join the conversation</p>
+{{define "title"}}Forum - Login{{end}}
 
-        <form method="POST" action="/login">
-            <div class="input-group">
+{{define "styles"}}
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/login.css">
+{{end}}
+
+{{define "content"}}
+<div class="auth-layout">
+    <div class="card auth-card fade-in">
+        <div class="auth-header">
+            <div class="brand">Forum</div>
+            <h1>Welcome Back</h1>
+            <p class="subtitle">Log in to join the conversation</p>
+        </div>
+
+        <form action="/login" method="POST">
+            <div class="form-group">
                 <label for="email">Email</label>
-                <input name="email" type="email" id="email" placeholder="you@example.com" required>
+                <input type="email" name="email" id="email" class="input" placeholder="you@example.com" required>
             </div>
 
-            <div class="input-group">
+            <div class="form-group">
                 <label for="password">Password</label>
-                <input name="password" type="password" id="password" placeholder="••••••••" required>
+                <input type="password" name="password" id="password" class="input" placeholder="••••••••" required>
             </div>
 
-            <button type="submit" class="btn-submit">Sign In</button>
+            <button type="submit" class="auth-btn">Sign In</button>
         </form>
 
-        <div class="footer">
-            <p class="signup-text">Don't have an account? <a href="#" class="signup-link">Sign up</a></p>
-            <a href="#" class="back-home">← Back to Home</a>
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="/registering" class="auth-link">Sign up</a></p>
+            <a href="/" class="back-home">&larr; Back to Home</a>
         </div>
     </div>
+</div>
+{{end}}
 
-</body>
-</html>
+{{define "scripts"}}{{end}}

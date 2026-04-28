@@ -28,28 +28,90 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "passwords do not match", http.StatusBadRequest)
 		return
 	}
+	// confPassError = r.FormValue("confirmPasswordError")
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
+	schema := `
+	INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)`
+
+	
+	// name = Firstname
+	// }
+
+	passByte := []byte(password)
+
+	fmt.Println(passByte)
+
+	hashedPassword, error := bcrypt.GenerateFromPassword(passByte, bcrypt.DefaultCost)
+
+	if error != nil {
 		http.Error(w, "failed to hash the password", http.StatusInternalServerError)
 		return
 	}
+	
+result, err := h.DB.Exec(schema, username, string(hashedPassword), email)
+if err != nil {
+    http.Error(w, "failed to save data email or username is already taken", http.StatusInternalServerError)
+    return
+}
 
-	_, err = h.DB.Exec(
-		`INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)`,
-		username, string(hashedPassword), email,
-	)
-	if err != nil {
-		fmt.Println("DB error: ", err)
-		http.Error(w, "failed to save data into database, username or email already exists", http.StatusInternalServerError)
-		return
-	}
+userID, err := result.LastInsertId()
+if err != nil {
+    http.Error(w, "failed to get user id", http.StatusInternalServerError)
+    return
+}
+u4, err := uuid.NewV4()
+if err != nil {
+    http.Error(w, "server error", http.StatusInternalServerError)
+    return
+}
+
+sessionID := u4.String()
+
+_, err = h.DB.Exec(`
+    INSERT INTO sessions (sessionId, user_id, expires_at)
+    VALUES (?, ?, datetime('now', '+1 hour'))
+`, sessionID, userID)
+
+if err != nil {
+    http.Error(w, "failed to create session", http.StatusInternalServerError)
+    return
+}
+
+cookie := &http.Cookie{
+    Name:     "session",
+    Value:    sessionID,
+    Path:     "/",
+    HttpOnly: true,
+    MaxAge:   3600,
+}
+http.SetCookie(w, cookie)
+
+
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+	return
+
+	// _, err := w.Write(output.Bytes())
+
+	// body, diode := io.ReadAll(r.Body)
+
+	// var data UserData
+
+	// err := json.Unmarshal([]byte(name), &data.Name)
+	// diode := json.NewDecoder(r.Body).Decode(&data)
+
+	// if err != nil {
+	// 	fmt.Errorf("failed to get userdata %v", err)
+	// 	return
+	// }
+
+	// fmt.Println(name)
+	// fmt.Println(&db)
+	// fmt.Println(data.Name)
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
-	user := r.FormValue("username")
+	// user := r.FormValue("username")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
@@ -109,6 +171,8 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   3600,
 	}
 	http.SetCookie(w, cookie)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+	return
 
 	fmt.Fprintf(w, "Welcome back %v", dbemail)
 	fmt.Println(dbpassword)
@@ -118,13 +182,11 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
-	fmt.Println(dbemail, user)
 
 	// for row.Next() {
 	// 	// var username, password string
 	// 	row.Scan(&username, &password)
 
-	fmt.Fprintf(w, "Welcome back %v", dbemail)
 	// }
 }
 
@@ -149,4 +211,22 @@ func (h *AuthHandler) GetUserIDFromSession(r *http.Request) (int, bool) {
 	fmt.Println("user id from session: ", userID)
 
 	return userID, true
+}
+
+func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+    
+    cookie, err := r.Cookie("session")
+    if err == nil {
+          h.DB.Exec("DELETE FROM sessions WHERE uuid = ?", cookie.Value)
+    }
+
+     http.SetCookie(w, &http.Cookie{
+        Name:     "session",
+        Value:    "",
+        Path:     "/",
+        MaxAge:   -1, 
+        HttpOnly: true,
+    })
+
+     http.Redirect(w, r, "/log", http.StatusSeeOther)
 }

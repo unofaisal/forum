@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"database/sql"
+	"database/sql"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
+
 
 	"forum/internal/handlers/models"
 )
@@ -39,20 +40,51 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Home hit")
 	filterCategory := r.URL.Query().Get("category")
 
+	userID, loggedIn := h.Auth.GetUserIDFromSession(r)
+	filterType := r.URL.Query().Get("filter")
 	var row *sql.Rows
 	var err error
 
 	// 2. Decide which query to run based on whether a filter exists
 	if filterCategory != "" {
 		schemaFilterGet := `
-			SELECT p.id, p.title, p.content 
-			FROM posts p
-			JOIN post_categories pc ON p.id = pc.post_id
-			JOIN categories c ON pc.category_id = c.id
-			WHERE c.name = ?`
+			SELECT 
+    p.id, 
+    p.title, 
+    p.content, 
+    u.username
+FROM posts p
+JOIN post_categories pc ON p.id = pc.post_id
+JOIN categories c ON pc.category_id = c.id
+LEFT JOIN users u ON p.user_id = u.id
+WHERE c.name = ?
+ORDER BY p.created_at DESC`
 		row, err = h.DB.Query(schemaFilterGet, filterCategory)
-	} else {
-		schemaPostGet := `SELECT id, title, content FROM posts`
+	}else if filterType == "myposts" && loggedIn{
+		row, err = h.DB.Query(`
+		SELECT p.id, p.title, p.content, u.username
+		FROM posts p
+		LEFT JOIN users u ON p.user_id = u.id
+		WHERE p.user_id = ?
+	`, userID)
+	}else if filterType == "liked" && loggedIn {
+row, err = h.DB.Query(`
+		SELECT p.id, p.title, p.content, u.username
+		FROM posts p
+		JOIN reactions r ON p.id = r.post_id
+		LEFT JOIN users u ON p.user_id = u.id
+		WHERE r.user_id = ? AND r.value = 1
+	`, userID)
+
+	}else {
+		schemaPostGet := `SELECT 
+    p.id, 
+    p.title, 
+    p.content, 
+    u.username
+FROM posts p
+LEFT JOIN users u ON p.user_id = u.id
+ORDER BY p.created_at DESC`
 		row, err = h.DB.Query(schemaPostGet)
 	}
 
@@ -67,7 +99,7 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 	for row.Next() {
 		var p models.Post
 
-		err := row.Scan(&p.ID, &p.Title, &p.Content)
+		err := row.Scan(&p.ID, &p.Title, &p.Content, &p.Username)
 		if err != nil {
 			continue
 		}
@@ -76,6 +108,7 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 			SELECT c.name FROM categories c
 			JOIN post_categories pc ON c.id = pc.category_id
 			WHERE pc.post_id = ?`
+
 
 		catRows, err := h.DB.Query(categoryQuery, p.ID)
 		if err == nil {
@@ -129,8 +162,18 @@ WHERE c.post_id = ?`
 			commentRows.Close()
 		}
 
+		var Initial string
+
+		if len(p.Username) > 0 {
+			Initial = string(p.Username[0])
+		} else {
+			Initial = "?"
+		}
+		fmt.Println(Initial)
+
 		likes, dislikes := h.getLikes(p.ID)
 
+		p.Initial = Initial
 		p.LikeCount = likes
 		p.DislikeCount = dislikes
 
@@ -139,14 +182,21 @@ WHERE c.post_id = ?`
 	}
 
 	fmt.Printf("Rendering %d posts\n", len(post))
+	userID, ok := h.Auth.GetUserIDFromSession(r)
 
-	tmpl, err := template.ParseFiles("ui/templates/home.html")
-	if err != nil {
-		http.Error(w, "failed to update ui %v", http.StatusNotFound)
-		return
+	var username string
+	if ok {
+		err := h.DB.QueryRow("SELECT username FROM users WHERE id = ?", userID).Scan(&username)
+		if err != nil {
+			username = ""
+		}
 	}
-	err = tmpl.Execute(w, post)
-	if err != nil {
-		http.Error(w, "failed to update ui %v", http.StatusNotFound)
+
+	data := models.HomePageData{
+		Posts:      post,
+		IsLoggedIn: ok,
+		Username:   username,
 	}
+
+	h.RenderTemplate(w, "home", data)
 }

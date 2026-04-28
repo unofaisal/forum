@@ -12,7 +12,8 @@ func (h *Handler) Comment(w http.ResponseWriter, r *http.Request) {
 
 	user_id, ok := h.Auth.GetUserIDFromSession(r)
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Redirect(w, r, "/log", http.StatusSeeOther)
+		// http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 	// created_at := time.Now()

@@ -13,7 +13,9 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 
 	userID, ok := h.Auth.GetUserIDFromSession(r)
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+				http.Redirect(w, r, "/log", http.StatusSeeOther)
+
+		// http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 	var existing int

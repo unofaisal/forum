@@ -87,6 +87,7 @@ func main() {
 	mux.HandleFunc("/post", handlePostPage)
 	mux.HandleFunc("/like", h.Like)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./ui/static/"))))
+	mux.HandleFunc("/logout", a.Logout)
 	fmt.Println("server running on port 8080")
 
 	u4, err := uuid.NewV4()
