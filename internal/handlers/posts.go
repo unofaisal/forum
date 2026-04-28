@@ -10,7 +10,8 @@ func (h *Handler) SendPost(w http.ResponseWriter, r *http.Request) {
 	postContent := r.FormValue("postContent")
 	user_id, ok := h.Auth.GetUserIDFromSession(r)
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Redirect(w, r, "/log", http.StatusSeeOther)
+		// http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 	fmt.Println("post sent successfully")
