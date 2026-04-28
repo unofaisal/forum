@@ -13,7 +13,7 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 
 	userID, ok := h.Auth.GetUserIDFromSession(r)
 	if !ok {
-				http.Redirect(w, r, "/log", http.StatusSeeOther)
+		http.Redirect(w, r, "/log", http.StatusSeeOther)
 
 		// http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
@@ -54,5 +54,11 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("reaction write error:", err)
 	}
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	ref := r.Header.Get("Referer")
+
+	if ref == "" {
+		ref = "/"
+	}
+
+	http.Redirect(w, r, ref, http.StatusSeeOther)
 }
