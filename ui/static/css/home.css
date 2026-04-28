@@ -143,15 +143,37 @@
     margin-bottom: 12px;
 }
 
+.post-content-container {
+    overflow: visible;
+}
+
 .post-body {
-    color: var(--text-muted);
+   color: var(--text-muted);
     font-size: 1rem;
     margin-bottom: 20px;
+    white-space: pre-wrap;
+    word-break: break-word;
+
     display: -webkit-box;
-    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+
     overflow: hidden;
 }
+
+.post-body.expanded {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+}
+/* 
+.expanded {
+    display: block;
+    -webkit-line-clamp: unset;
+    -webkit-box-orient: initial;
+    overflow: visible;
+    max-height: none;
+} */
 
 .post-footer {
     display: flex;
