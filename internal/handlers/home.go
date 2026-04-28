@@ -38,6 +38,8 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Home hit")
 	filterCategory := r.URL.Query().Get("category")
 
+	userID, loggedIn := h.Auth.GetUserIDFromSession(r)
+	filterType := r.URL.Query().Get("filter")
 	var row *sql.Rows
 	var err error
 
@@ -53,16 +55,34 @@ FROM posts p
 JOIN post_categories pc ON p.id = pc.post_id
 JOIN categories c ON pc.category_id = c.id
 LEFT JOIN users u ON p.user_id = u.id
-WHERE c.name = ?`
+WHERE c.name = ?
+ORDER BY p.created_at DESC`
 		row, err = h.DB.Query(schemaFilterGet, filterCategory)
-	} else {
+	}else if filterType == "myposts" && loggedIn{
+		row, err = h.DB.Query(`
+		SELECT p.id, p.title, p.content, u.username
+		FROM posts p
+		LEFT JOIN users u ON p.user_id = u.id
+		WHERE p.user_id = ?
+	`, userID)
+	}else if filterType == "liked" && loggedIn {
+row, err = h.DB.Query(`
+		SELECT p.id, p.title, p.content, u.username
+		FROM posts p
+		JOIN reactions r ON p.id = r.post_id
+		LEFT JOIN users u ON p.user_id = u.id
+		WHERE r.user_id = ? AND r.value = 1
+	`, userID)
+
+	}else {
 		schemaPostGet := `SELECT 
     p.id, 
     p.title, 
     p.content, 
     u.username
 FROM posts p
-LEFT JOIN users u ON p.user_id = u.id`
+LEFT JOIN users u ON p.user_id = u.id
+ORDER BY p.created_at DESC`
 		row, err = h.DB.Query(schemaPostGet)
 	}
 
