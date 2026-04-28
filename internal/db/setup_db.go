@@ -55,7 +55,7 @@ func Setup(database *sql.DB) {
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		title TEXT NOT NULL,
 		content TEXT NOT NULL,
-		user_id
+		user_id INTEGER NOT NULL,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
 		`
