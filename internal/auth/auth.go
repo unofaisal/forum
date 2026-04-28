@@ -176,7 +176,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, cookie)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 	return
-	fmt.Println(user)
+
 	
 
 	// if dbpassword != password {
