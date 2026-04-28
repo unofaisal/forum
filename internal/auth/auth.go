@@ -174,6 +174,8 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   3600,
 	}
 	http.SetCookie(w, cookie)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+	return
 
 	fmt.Fprintf(w, "Welcome back %v", dbemail)
 	fmt.Println(dbpassword)
