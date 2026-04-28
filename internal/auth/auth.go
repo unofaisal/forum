@@ -119,7 +119,7 @@ http.SetCookie(w, cookie)
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
-	user := r.FormValue("username")
+	// user := r.FormValue("username")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
@@ -213,4 +213,22 @@ func (h *AuthHandler) GetUserIDFromSession(r *http.Request) (int, bool) {
 	fmt.Println("user id from session: ", userID)
 
 	return userID, true
+}
+
+func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+    
+    cookie, err := r.Cookie("session")
+    if err == nil {
+          h.DB.Exec("DELETE FROM sessions WHERE uuid = ?", cookie.Value)
+    }
+
+     http.SetCookie(w, &http.Cookie{
+        Name:     "session",
+        Value:    "",
+        Path:     "/",
+        MaxAge:   -1, 
+        HttpOnly: true,
+    })
+
+     http.Redirect(w, r, "/log", http.StatusSeeOther)
 }
