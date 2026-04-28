@@ -55,6 +55,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 		// panic(error)
 	}
+	
 result, err := h.DB.Exec(schema, username, string(hashedPassword), email)
 if err != nil {
     http.Error(w, "failed to save data", http.StatusInternalServerError)
@@ -173,22 +174,20 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   3600,
 	}
 	http.SetCookie(w, cookie)
-
-	fmt.Fprintf(w, "Welcome back %v", dbemail)
-	fmt.Println(dbpassword)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+	return
+	
 
 	// if dbpassword != password {
 	// 	http.Error(w, "user unknown try again", http.StatusForbidden)
 	// 	return
 	// }
 
-	fmt.Println(dbemail, user)
 
 	// for row.Next() {
 	// 	// var username, password string
 	// 	row.Scan(&username, &password)
 
-	fmt.Fprintf(w, "Welcome back %v", dbemail)
 	// }
 }
 
