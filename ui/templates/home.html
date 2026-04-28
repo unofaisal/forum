@@ -52,17 +52,19 @@
     </div>
 
     <div id="posts-container">
-        {{range .}}
+        {{range .Posts}}
         <div class="card post-card fade-in">
             <div class="post-header">
                 <div class="user-meta">
-                    <div class="avatar">U</div>
+                    <div class="avatar">{{.Initial}}</div>
                     <div>
-                        <div class="author-name">Anonymous</div>
-                        <div class="post-timestamp">Recently</div>
+                        <div class="author-name">{{.Username}}</div>
+                        <div class="post-timestamp"></div>
                     </div>
                 </div>
-                <span class="pill">General</span>
+                <!-- {{range .Categories}} -->
+                <span class="pill"></span>
+                <!-- {{end}} -->
             </div>
 
             <h3 class="post-title">{{.Title}}</h3>

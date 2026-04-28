@@ -10,5 +10,6 @@ type Post struct {
 	CommentCount int
 	LikeCount    int
 	DislikeCount int
+	Initial 	string
 	Created_at   string
 }
