@@ -41,16 +41,19 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 	var row *sql.Rows
 	var err error
 
-
-
 	// 2. Decide which query to run based on whether a filter exists
 	if filterCategory != "" {
 		schemaFilterGet := `
-			SELECT p.id, p.title, p.content 
-			FROM posts p
-			JOIN post_categories pc ON p.id = pc.post_id
-			JOIN categories c ON pc.category_id = c.id
-			WHERE c.name = ?`
+			SELECT 
+    p.id, 
+    p.title, 
+    p.content, 
+    u.username
+FROM posts p
+JOIN post_categories pc ON p.id = pc.post_id
+JOIN categories c ON pc.category_id = c.id
+LEFT JOIN users u ON p.user_id = u.id
+WHERE c.name = ?`
 		row, err = h.DB.Query(schemaFilterGet, filterCategory)
 	} else {
 		schemaPostGet := `SELECT 
@@ -73,7 +76,6 @@ LEFT JOIN users u ON p.user_id = u.id`
 
 	for row.Next() {
 		var p models.Post
-		
 
 		err := row.Scan(&p.ID, &p.Title, &p.Content, &p.Username)
 		if err != nil {
@@ -139,12 +141,12 @@ WHERE c.post_id = ?`
 
 		var Initial string
 
-			if len(p.Username) > 0 {
-					Initial = string(p.Username[0])
-				} else {
-					Initial = "?"
-				}
-				fmt.Println(Initial)
+		if len(p.Username) > 0 {
+			Initial = string(p.Username[0])
+		} else {
+			Initial = "?"
+		}
+		fmt.Println(Initial)
 
 		likes, dislikes := h.getLikes(p.ID)
 
