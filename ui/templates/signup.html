@@ -3,14 +3,17 @@
 {{define "title"}}Forum - Sign Up{{end}}
 
 {{define "styles"}}
+<link rel="stylesheet" href="/static/css/base.css">
 <link rel="stylesheet" href="/static/css/login.css">
+
 {{end}}
 
 {{define "content"}}
 <div class="auth-layout">
     <div class="card auth-card fade-in">
         <div class="auth-header">
-            <h1>Create Account</h1>
+            <div class="brand">Forum</div>
+            <h1>Create an Account</h1>
             <p class="subtitle">Join the community and start posting</p>
         </div>
 
@@ -30,16 +33,12 @@
                 <input type="password" name="password" id="password" class="input" placeholder="Create a strong password" required>
             </div>
 
-            <div class="form-group">
-                <label for="confirmPassword">Confirm Password</label>
-                <input type="password" name="confirmPassword" id="confirmPassword" class="input" placeholder="Confirm your password" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 14px;">Create Account</button>
+            <button type="submit" class="auth-btn">Create Account</button>
         </form>
 
         <div class="auth-footer">
             <p>Already have an account? <a href="/log" class="auth-link">Log in</a></p>
+            <a href="/" class="back-home">&larr; Back to Home</a>
         </div>
     </div>
 </div>

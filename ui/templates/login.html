@@ -3,6 +3,7 @@
 {{define "title"}}Forum - Login{{end}}
 
 {{define "styles"}}
+<link rel="stylesheet" href="/static/css/base.css">
 <link rel="stylesheet" href="/static/css/login.css">
 {{end}}
 
@@ -10,13 +11,14 @@
 <div class="auth-layout">
     <div class="card auth-card fade-in">
         <div class="auth-header">
+            <div class="brand">Forum</div>
             <h1>Welcome Back</h1>
             <p class="subtitle">Log in to join the conversation</p>
         </div>
 
         <form action="/login" method="POST">
             <div class="form-group">
-                <label for="email">Email address</label>
+                <label for="email">Email</label>
                 <input type="email" name="email" id="email" class="input" placeholder="you@example.com" required>
             </div>
 
@@ -25,11 +27,12 @@
                 <input type="password" name="password" id="password" class="input" placeholder="••••••••" required>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 14px;">Sign In</button>
+            <button type="submit" class="auth-btn">Sign In</button>
         </form>
 
         <div class="auth-footer">
             <p>Don't have an account? <a href="/registering" class="auth-link">Sign up</a></p>
+            <a href="/" class="back-home">&larr; Back to Home</a>
         </div>
     </div>
 </div>
