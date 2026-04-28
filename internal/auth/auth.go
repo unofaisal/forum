@@ -58,7 +58,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	
 result, err := h.DB.Exec(schema, username, string(hashedPassword), email)
 if err != nil {
-    http.Error(w, "failed to save data", http.StatusInternalServerError)
+    http.Error(w, "failed to save data email or username is already taken", http.StatusInternalServerError)
     return
 }
 
@@ -119,7 +119,7 @@ http.SetCookie(w, cookie)
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
-	user := r.FormValue("username")
+	// user := r.FormValue("username")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
@@ -176,7 +176,9 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, cookie)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 	return
-	
+
+	fmt.Fprintf(w, "Welcome back %v", dbemail)
+	fmt.Println(dbpassword)
 
 	// if dbpassword != password {
 	// 	http.Error(w, "user unknown try again", http.StatusForbidden)
@@ -213,4 +215,22 @@ func (h *AuthHandler) GetUserIDFromSession(r *http.Request) (int, bool) {
 	fmt.Println("user id from session: ", userID)
 
 	return userID, true
+}
+
+func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+    
+    cookie, err := r.Cookie("session")
+    if err == nil {
+          h.DB.Exec("DELETE FROM sessions WHERE uuid = ?", cookie.Value)
+    }
+
+     http.SetCookie(w, &http.Cookie{
+        Name:     "session",
+        Value:    "",
+        Path:     "/",
+        MaxAge:   -1, 
+        HttpOnly: true,
+    })
+
+     http.Redirect(w, r, "/log", http.StatusSeeOther)
 }
