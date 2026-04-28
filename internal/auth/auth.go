@@ -14,18 +14,11 @@ type AuthHandler struct {
 }
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
-	// http.ServeFile(w, r, "ui/templates/register.html")
-
-	// Firstname := r.FormValue("name")
 	username := r.FormValue("username")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 	confPassword := r.FormValue("confirmPassword")
-	confPassError := r.FormValue("confirmPasswordError")
 
-	// userList := params["name"]
-
-	// fmt.Println(params)
 	if confPassword == "" || username == "" || password == "" || email == "" {
 		http.Error(w, "all fields are required", http.StatusBadRequest)
 		return
@@ -33,72 +26,26 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	if confPassword != password {
 		http.Error(w, "passwords do not match", http.StatusBadRequest)
-		// confPassError = "passwords do not match"
 		return
 	}
-	// confPassError = r.FormValue("confirmPasswordError")
 
-	schema := `
-	INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)`
-
-	user := "user"
-	// name := "unknown"
-	pass := "unknown"
-	mail := "unknown"
-	// var output bytes.Buffer
-
-	// output.WriteString("Welcome ")
-
-	// if len("unknown") > 0 {
-	user = username
-	pass = password
-	mail = email
-	// name = Firstname
-	// }
-
-	passByte := []byte(password)
-
-	fmt.Println(passByte)
-
-	hashedPassword, error := bcrypt.GenerateFromPassword(passByte, bcrypt.DefaultCost)
-
-	if error != nil {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
 		http.Error(w, "failed to hash the password", http.StatusInternalServerError)
 		return
-		// panic(error)
 	}
 
-	_, err := h.DB.Exec(schema, username, string(hashedPassword), email)
-
+	_, err = h.DB.Exec(
+		`INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)`,
+		username, string(hashedPassword), email,
+	)
 	if err != nil {
 		fmt.Println("DB error: ", err)
-		http.Error(w, "failed to save data into databse username or email already exists", http.StatusInternalServerError)
+		http.Error(w, "failed to save data into database, username or email already exists", http.StatusInternalServerError)
 		return
-	} else {
-		fmt.Fprintln(w, "data saved successfully into database", http.StatusOK)
 	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
-
-	// _, err := w.Write(output.Bytes())
-	fmt.Println("this is the errror: ", confPassError)
-
-	fmt.Fprintf(w, "Username: %s\nEmail: %s\nPassword: %s\n", user, mail, pass)
-	// body, diode := io.ReadAll(r.Body)
-
-	// var data UserData
-
-	// err := json.Unmarshal([]byte(name), &data.Name)
-	// diode := json.NewDecoder(r.Body).Decode(&data)
-
-	// if err != nil {
-	// 	fmt.Errorf("failed to get userdata %v", err)
-	// 	return
-	// }
-
-	// fmt.Println(name)
-	// fmt.Println(&db)
-	// fmt.Println(data.Name)
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
@@ -148,6 +95,11 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		INSERT INTO sessions (sessionId, user_id, expires_at)
 		VALUES (?, ?, datetime('now', '+1 hour'))
 	`, sessionID, user_id)
+	if err != nil {
+		fmt.Println("DB error: ", err)
+		http.Error(w, "failed to save session", http.StatusInternalServerError)
+		return
+	}
 
 	cookie := &http.Cookie{
 		Name:     "session",
@@ -190,7 +142,6 @@ func (h *AuthHandler) GetUserIDFromSession(r *http.Request) (int, bool) {
 		FROM sessions 
 		WHERE sessionId = ?
 	`, cookie.Value).Scan(&userID, &expires)
-
 	if err != nil {
 		fmt.Println("error fetching user id from session: ", err.Error())
 		return 0, false
