@@ -119,7 +119,7 @@ http.SetCookie(w, cookie)
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
-	user := r.FormValue("username")
+	// user := r.FormValue("username")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
