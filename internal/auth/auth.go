@@ -214,3 +214,21 @@ func (h *AuthHandler) GetUserIDFromSession(r *http.Request) (int, bool) {
 
 	return userID, true
 }
+
+func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+    
+    cookie, err := r.Cookie("session")
+    if err == nil {
+          h.DB.Exec("DELETE FROM sessions WHERE uuid = ?", cookie.Value)
+    }
+
+     http.SetCookie(w, &http.Cookie{
+        Name:     "session",
+        Value:    "",
+        Path:     "/",
+        MaxAge:   -1, 
+        HttpOnly: true,
+    })
+
+     http.Redirect(w, r, "/log", http.StatusSeeOther)
+}
