@@ -20,14 +20,35 @@
             <a href="/" class="logo">Forum</a>
             
             <div class="header-actions">
-                <a href="/post" class="btn btn-primary">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    New Post
-                </a>
+                <div class="nav-actions">
+
+                    <a href="/post" class="btn btn-primary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        New Post
+                    </a>
                 <div>
-    {{if .IsLoggedIn}}
-        <span>Welcome, {{.Username}}</span>
-        <a href="/logout">Logout</a>
+                    {{if .IsLoggedIn}}
+                    <div class="user-menu">
+            <button class="menu-button" onclick="toggleMenu()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>{{.Username}}</span>
+            </button>
+        </div>
+
+            <div id="dropdown-content" class="dropdown-hidden">
+                <a href="/logout" class="logout-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                Logout
+                </a>
+            </div>
+            </div>
     {{else}}
     <a href="/log" class="btn btn-outline">Log In</a>
     <a href="/registering" class="btn btn-outline">Register</a>
@@ -44,5 +65,18 @@
 
     {{template "scripts" .}}
 </body>
+<script>
+    function toggleMenu() {
+  const dropdown = document.getElementById("dropdown-content");
+  dropdown.classList.toggle("show");
+}
+
+// Optional: Close the menu if user clicks anywhere else
+window.onclick = function(event) {
+  if (!event.target.closest('.user-menu')) {
+    document.getElementById("dropdown-content").classList.remove("show");
+  }
+}
+</script>
 </html>
 {{end}}

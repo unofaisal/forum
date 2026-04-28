@@ -7,7 +7,7 @@
     
     --primary-purple: #c56cf0;
     --primary-purple-hover: #d28df4;
-    --primary-gradient: linear-gradient(135deg, #bd34fe 0%, #7d40ff 100%);
+    --primary-gradient: linear-gradient(to right, #e85d9e, var(--primary-purple));
     
     --text-main: #ffffff;
     --text-muted: #8b949e;
@@ -95,8 +95,12 @@ ul {
     gap: 8px;
 }
 
+.nav-actions{
+    display: flex;
+}
+
 .btn-primary {
-    background: var(--primary-gradient);
+    background: var(--primary-purple);
     color: white;
 }
 
@@ -142,4 +146,44 @@ ul {
 
 .fade-in {
     animation: fadeIn 0.4s ease-out forwards;
+}
+.user-menu {
+  position: relative;
+  display: flex;
+}
+
+.menu-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--primary-purple);
+  border: 1px solid var(--primary-purple);
+  padding: 8px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.dropdown-hidden {
+  display: none;
+  position: absolute;
+  right: 0;
+  margin-top: 8px;
+  background:var(--primary-purple);
+  border: 1px solid var(--primary-purple);
+  border-radius: 2px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  min-width: 120px;
+}
+
+.show {
+  display: block; /* Class to be toggled by JS */
+}
+
+.logout-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  text-decoration: none;
+  color: white; /* Red for logout */
 }
