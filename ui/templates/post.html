@@ -22,7 +22,7 @@
             <h1>Create a New Post</h1>
             <p class="subtitle">Share your thoughts with the community</p>
 
-            <form method="POST" action="/sendpost">
+            <form id="post_article" method="POST" action="/sendpost">
                 <div class="form-group">
                     <label for="title">Title</label>
                     <input type="text" name="postitle" id="title" placeholder="What's on your mind?">
@@ -67,5 +67,31 @@
         </section>
     </main>
 
+<script>
+document.getElementById("post_article").addEventListener("submit", function (e) {
+    const title = document.getElementById("title").value.trim();
+    const content = document.getElementById("content").value.trim();
+    const categories = document.querySelectorAll('input[name="category"]:checked');
+
+    let errors = [];
+
+    if (title === "") {
+        errors.push("Title is required");
+    }
+
+    if (content === "") {
+        errors.push("Content is required");
+    }
+
+    if (categories.length === 0) {
+        errors.push("Select at least one category");
+    }
+
+    if (errors.length > 0) {
+        e.preventDefault();
+        alert(errors.join("\n"));
+    }
+});
+</script>
 </body>
 </html>  

@@ -2,11 +2,9 @@ package handlers
 
 import (
 	"database/sql"
+	"forum/internal/auth"
 	"html/template"
 	"log"
-	"net/http"
-
-	"forum/internal/auth"
 	"net/http"
 )
 

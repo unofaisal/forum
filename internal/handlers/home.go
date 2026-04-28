@@ -2,11 +2,9 @@ package handlers
 
 import (
 	"database/sql"
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
-
 
 	"forum/internal/handlers/models"
 )
@@ -60,23 +58,22 @@ LEFT JOIN users u ON p.user_id = u.id
 WHERE c.name = ?
 ORDER BY p.created_at DESC`
 		row, err = h.DB.Query(schemaFilterGet, filterCategory)
-	}else if filterType == "myposts" && loggedIn{
+	} else if filterType == "myposts" && loggedIn {
 		row, err = h.DB.Query(`
 		SELECT p.id, p.title, p.content, u.username
 		FROM posts p
 		LEFT JOIN users u ON p.user_id = u.id
 		WHERE p.user_id = ?
 	`, userID)
-	}else if filterType == "liked" && loggedIn {
-row, err = h.DB.Query(`
+	} else if filterType == "liked" && loggedIn {
+		row, err = h.DB.Query(`
 		SELECT p.id, p.title, p.content, u.username
 		FROM posts p
 		JOIN reactions r ON p.id = r.post_id
 		LEFT JOIN users u ON p.user_id = u.id
 		WHERE r.user_id = ? AND r.value = 1
 	`, userID)
-
-	}else {
+	} else {
 		schemaPostGet := `SELECT 
     p.id, 
     p.title, 
@@ -108,7 +105,6 @@ ORDER BY p.created_at DESC`
 			SELECT c.name FROM categories c
 			JOIN post_categories pc ON c.id = pc.category_id
 			WHERE pc.post_id = ?`
-
 
 		catRows, err := h.DB.Query(categoryQuery, p.ID)
 		if err == nil {
