@@ -163,5 +163,23 @@
             }
         });
     });
+
+
+const currentUrl = window.location.pathname + window.location.search;
+
+// Remove existing active classes
+document.querySelectorAll('.nav-item').forEach(link => {
+    link.classList.remove('active');
+});
+
+// Loop through links and match URL
+document.querySelectorAll('.nav-item').forEach(link => {
+    const linkUrl = link.getAttribute('href');
+
+    if (linkUrl === currentUrl) {
+        link.classList.add('active');
+    }
+});
+
 </script>
 {{end}}
